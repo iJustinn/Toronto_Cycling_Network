@@ -19,7 +19,6 @@ library(dplyr)
 #### Download raw data ####
 # get package
 package <- show_package("cycling-network")
-package
 
 # get all resources for this package
 resources <- list_package_resources("cycling-network")
