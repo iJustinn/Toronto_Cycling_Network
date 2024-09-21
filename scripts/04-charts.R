@@ -26,14 +26,20 @@ ggplot(coordinates_data, aes(x = longitude, y = latitude)) +
   labs(title = "Map of Bike Lanes Locations in Toronto", x = "Longitude", y = "Latitude") +
   theme_minimal() +
   # Set appropriate limits for Toronto area coordinates
-  coord_cartesian(xlim = c(-79.63, -79.15), ylim = c(43.58, 43.87)) +
+  coord_cartesian(xlim = c(-79.6303856025883, -79.1180336515019), ylim = c(43.5822069220627, 43.8554571861712)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+# Save Chart
+ggsave("other/charts/map.jpg")
+
+
+
+#### Chart 1 ####
+# 
 
 
 
 
-#### Save Charts ####
 
 
 
