@@ -61,7 +61,7 @@ upgraded_data <- read_csv("data/analysis_data/upgraded_data.csv")
 
 # Generate the bar chart for "Number of Bikeways Upgraded by Year"
 ggplot(upgraded_data, aes(x = UPGRADED, y = num_lanes)) +
-  geom_bar(stat = "identity", fill = "grey") +
+  geom_bar(stat = "identity", fill = "darkgrey") +  # Bar chart
   labs(title = "Number of Bikeways Upgraded by Year",
        x = "Year of Upgrade",
        y = "Number of Bikeways") +
@@ -70,7 +70,22 @@ ggplot(upgraded_data, aes(x = UPGRADED, y = num_lanes)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotates x-axis labels for readability
 
 # Save Chart
-ggsave("other/charts/upgrade.jpg")
+ggsave("other/charts/upgrade_bar.jpg")
+
+# Generate the line chart with trend line for "Number of Bikeways Upgraded by Year"
+ggplot(upgraded_data, aes(x = UPGRADED, y = num_lanes)) +
+  geom_line(aes(group = 1), color = "black", size = 1) +  # Adds a line connecting each point
+  geom_point(color = "black", size = 2) +  # Adds points at each data value
+  geom_smooth(method = "lm", color = "red", se = FALSE) +  # Adds a linear trend line
+  labs(title = "Trend of Bikeways Upgraded by Year",
+       x = "Year of Upgrade",
+       y = "Number of Bikeways") +
+  scale_x_continuous(breaks = seq(min(upgraded_data$UPGRADED), max(upgraded_data$UPGRADED), by = 1)) +  # Display all years
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotates x-axis labels for readability
+
+# Save the line chart
+ggsave("other/charts/upgrade_line.jpg")
 
 
 
@@ -81,7 +96,7 @@ installed_data <- read_csv("data/analysis_data/installed_data.csv")
 
 # Generate the bar chart for "Number of Bikeways Installed by Year"
 ggplot(installed_data, aes(x = INSTALLED, y = num_bikeways)) +
-  geom_bar(stat = "identity", fill = "grey") +
+  geom_bar(stat = "identity", fill = "darkgrey") +  # Bar chart
   labs(title = "Number of Bikeways Installed by Year",
        x = "Year of Installation",
        y = "Number of Bikeways") +
@@ -90,7 +105,22 @@ ggplot(installed_data, aes(x = INSTALLED, y = num_bikeways)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotates x-axis labels for readability
 
 # Save Chart
-ggsave("other/charts/installed.jpg")
+ggsave("other/charts/installed_bar.jpg")
+
+# Generate the line chart with trend line for "Number of Bikeways Installed by Year"
+ggplot(installed_data, aes(x = INSTALLED, y = num_bikeways)) +
+  geom_line(aes(group = 1), color = "black", size = 1) +  # Adds a line connecting each point
+  geom_point(color = "black", size = 2) +  # Adds points at each data value
+  geom_smooth(method = "lm", color = "red", se = FALSE) +  # Adds a linear trend line
+  labs(title = "Trend of Bikeways Installed by Year",
+       x = "Year of Installation",
+       y = "Number of Bikeways") +
+  scale_x_continuous(breaks = seq(min(installed_data$INSTALLED), max(installed_data$INSTALLED), by = 1)) +  # Display all years
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotates x-axis labels for readability
+
+# Save the line chart
+ggsave("other/charts/installed_line.jpg")
 
 
 
