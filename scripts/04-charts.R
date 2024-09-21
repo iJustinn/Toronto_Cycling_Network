@@ -94,5 +94,47 @@ ggsave("other/charts/installed.jpg")
 
 
 
+#### Chart 4 ####
+# Lane Type
+# Load the data
+lane_type_data <- read_csv("data/analysis_data/lane_type_data.csv")
+
+# Combine the 'INSTALLED' and 'UPGRADED' years into one column for better visualization
+lane_type_years <- lane_type_data %>%
+  pivot_longer(cols = c(INSTALLED, UPGRADED), names_to = "Year_Type", values_to = "Year") %>%
+  filter(!is.na(Year)) %>%  # Remove NA values in the 'Year' column
+  group_by(Comfort_Level) %>%
+  summarise(count = n())  # Count the occurrences of each Comfort Level
+
+# Calculate percentages
+lane_type_years <- lane_type_years %>%
+  mutate(percentage = round((count / sum(count)) * 100, 2))  # Add percentage column
+
+# Define a more contrasting Morandi-inspired color scheme
+contrasting_morandi_colors <- c(
+  "High Comfort" = "#B39B8E",   # Muted brownish-pink
+  "Moderate Comfort" = "#8A7967", # Stronger grey-brown
+  "Low Comfort" = "#6E7062"     # Dark muted gray-green
+)
+
+# Generate the pie chart with border lines and larger text/legend
+ggplot(lane_type_years, aes(x = "", y = percentage, fill = Comfort_Level)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +  # Add black border lines around pie sections
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = paste0(percentage, "%")), 
+            position = position_stack(vjust = 0.5), 
+            size = 6,   # Increase text size for percentage labels
+            fontface = "bold") +  # Make percentage text bold
+  scale_fill_manual(values = contrasting_morandi_colors) +  # Apply the more contrasting Morandi colors
+  labs(title = "Bikeway Comfort Level Distribution", fill = "Comfort Level") +
+  theme_void() +  # Remove axis, grid lines, and background
+  theme(legend.position = "right", 
+        legend.title = element_text(size = 16),  # Increase legend title size
+        legend.text = element_text(size = 14))  # Increase legend text size
+
+# Save the chart
+ggsave("other/charts/lane_type.jpg")
+
+
 
 
