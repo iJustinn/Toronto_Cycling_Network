@@ -17,12 +17,10 @@ library(tidyverse)
 
 
 
-#### Load data ####
+#### Clean data 1 ####
+# Map data
+# Load the dataset
 data <- read_csv("data/raw_data/raw_data.csv")
-
-
-
-#### Clean data ####
 
 # Function to extract and clean coordinates from geometry
 extract_coordinates <- function(geo) {
@@ -78,12 +76,54 @@ colnames(coordinates_data) <- c("longitude", "latitude", "id")
 coordinates_data <- coordinates_data %>%
   filter(!is.na(longitude), !is.na(latitude))
 
-
-
-#### Save data ####
+# Save data
 write_csv(
   x = coordinates_data,
   file = "data/analysis_data/coordinates_data.csv"
 )
+
+
+
+#### Clean data 2 ####
+# Upgrade data
+# Load the dataset
+data <- read_csv("data/raw_data/raw_data.csv")
+
+# Select and clean the 'UPGRADED' column, then summarize by year
+upgraded_data <- data %>%
+  select(UPGRADED) %>%                     # Keep only the 'UPGRADED' column
+  filter(!is.na(UPGRADED) & UPGRADED > 1800) %>%  # Remove NA and invalid years
+  mutate(UPGRADED = as.numeric(UPGRADED)) %>% # Convert 'UPGRADED' to numeric
+  group_by(UPGRADED) %>%                    # Group by the upgrade year
+  summarise(num_lanes = n())                # Count the number of upgrades per year
+
+# Save the summarized data
+write_csv(
+  x = upgraded_data,
+  file = "data/analysis_data/upgraded_data.csv"
+)
+
+
+
+#### Clean data 3 ####
+# Installed data
+# Load the dataset
+data <- read_csv("data/raw_data/raw_data.csv")
+
+# Select and clean the 'INSTALLED' column, then summarize by year
+installed_data <- data %>%
+  select(INSTALLED) %>%                        # Keep only the 'INSTALLED' column
+  filter(!is.na(INSTALLED) & INSTALLED > 1800) %>%  # Remove NA and invalid years
+  mutate(INSTALLED = as.numeric(INSTALLED)) %>%     # Convert 'INSTALLED' to numeric
+  group_by(INSTALLED) %>%                          # Group by the installation year
+  summarise(num_bikeways = n())                    # Count the number of bikeways per year
+
+# Save the summarized data
+write_csv(
+  x = installed_data,
+  file = "data/analysis_data/installed_data.csv"
+)
+
+
 
 
