@@ -156,7 +156,7 @@ low_comfort_data <- low_comfort_data %>%
   mutate(percentage = round((count / sum(count)) * 100, 2))  # Add percentage column
 
 # Define colors for 'Upgraded' and 'Not Upgraded' categories
-upgrade_colors <- c(
+upgrade_colors_low <- c(
   "Upgraded" = "#8A7967",  # Gray-brown for upgraded
   "Not Upgraded" = "#B39B8E"  # Muted pinkish tone for not upgraded
 )
@@ -169,7 +169,7 @@ ggplot(low_comfort_data, aes(x = "", y = percentage, fill = Upgrade_Status)) +
             position = position_stack(vjust = 0.5), 
             size = 6,   # Increase text size for percentage labels
             fontface = "bold") +  # Make percentage text bold
-  scale_fill_manual(values = upgrade_colors) +  # Apply colors for Upgraded vs Not Upgraded
+  scale_fill_manual(values = upgrade_colors_low) +  # Apply colors for Upgraded vs Not Upgraded
   labs(title = "Distribution of Low Comfort Lanes: Upgraded vs Not Upgraded", fill = "Upgrade Status") +
   theme_void() +  # Remove axis, grid lines, and background
   theme(legend.position = "right", 
@@ -202,7 +202,7 @@ moderate_comfort_data <- moderate_comfort_data %>%
 # Define colors for 'Upgraded' and 'Not Upgraded' categories
 upgrade_colors_moderate <- c(
   "Upgraded" = "#8A7967",  # Gray-brown for upgraded
-  "Not Upgraded" = "#B39B8E"  # Muted brownish-pink for not upgraded
+  "Not Upgraded" = "#B39B8E"  # Muted pinkish tone for not upgraded
 )
 
 # Generate the pie chart for Moderate Comfort lanes
@@ -247,8 +247,8 @@ high_comfort_data <- high_comfort_data %>%
 
 # Define colors for 'Upgraded' and 'Not Upgraded' categories
 upgrade_colors_high <- c(
-  "Upgraded" = "#6E7062",  # Dark muted gray-green for upgraded
-  "Not Upgraded" = "#B39B8E"  # Muted brownish-pink for not upgraded
+  "Upgraded" = "#8A7967",  # Gray-brown for upgraded
+  "Not Upgraded" = "#B39B8E"  # Muted pinkish tone for not upgraded
 )
 
 # Generate the pie chart for High Comfort lanes
