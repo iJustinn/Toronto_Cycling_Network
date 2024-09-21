@@ -1,0 +1,93 @@
+In R, provide the code for how you clean data and generate charts (in two separate code blocks) of the "Number Of Bikeways Installed By Year" chart. Do similar things as this cleaning and charting process:
+
+
+#### Clean data 2 ####
+# Upgrade data
+# Load the dataset
+data <- read_csv("data/raw_data/raw_data.csv")
+
+# Select and clean the 'UPGRADED' column, then summarize by year
+upgraded_data <- data %>%
+  select(UPGRADED) %>%                     # Keep only the 'UPGRADED' column
+  filter(!is.na(UPGRADED) & UPGRADED > 1800) %>%  # Remove NA and invalid years
+  mutate(UPGRADED = as.numeric(UPGRADED)) %>% # Convert 'UPGRADED' to numeric
+  group_by(UPGRADED) %>%                    # Group by the upgrade year
+  summarise(num_lanes = n())                # Count the number of upgrades per year
+
+# Save the summarized data
+write_csv(
+  x = upgraded_data,
+  file = "data/analysis_data/upgraded_data.csv"
+)
+
+
+#### Chart 2 ####
+# Upgraded
+# Load the data
+upgraded_data <- read_csv("data/analysis_data/upgraded_data.csv")
+
+# Generate the bar chart for "Number of Bikeways Upgraded by Year"
+ggplot(upgraded_data, aes(x = UPGRADED, y = num_lanes)) +
+  geom_bar(stat = "identity", fill = "grey") +
+  labs(title = "Number of Bikeways Upgraded by Year",
+       x = "Year of Upgrade",
+       y = "Number of Bikeways") +
+  scale_x_continuous(breaks = seq(min(upgraded_data$UPGRADED), max(upgraded_data$UPGRADED), by = 1)) +  # Display all years
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotates x-axis labels for readability
+
+# Save Chart
+ggsave("other/charts/upgrade.jpg")
+
+3/3
+
+ChatGPT said:
+ChatGPT
+Here are the two R code blocks for cleaning and generating the chart for the "Number of Bikeways Installed by Year," similar to the process you provided.
+
+Clean Data
+r
+Copy code
+#### Clean data ####
+# Load necessary libraries
+library(tidyverse)
+
+# Load the dataset
+cycling_data <- read_csv("data/raw_data/cycling_data.csv")
+
+# Select and clean the 'INSTALLED' column, then summarize by year
+installed_data <- cycling_data %>%
+  select(INSTALLED) %>%                        # Keep only the 'INSTALLED' column
+  filter(!is.na(INSTALLED) & INSTALLED > 1800) %>%  # Remove NA and invalid years
+  mutate(INSTALLED = as.numeric(INSTALLED)) %>%     # Convert 'INSTALLED' to numeric
+  group_by(INSTALLED) %>%                          # Group by the installation year
+  summarise(num_bikeways = n())                    # Count the number of bikeways per year
+
+# Save the summarized data
+write_csv(
+  x = installed_data,
+  file = "data/analysis_data/installed_data.csv"
+)
+Generate Chart
+r
+Copy code
+#### Chart ####
+# Load necessary libraries
+library(ggplot2)
+
+# Load the summarized data
+installed_data <- read_csv("data/analysis_data/installed_data.csv")
+
+# Generate the bar chart for "Number of Bikeways Installed by Year"
+ggplot(installed_data, aes(x = INSTALLED, y = num_bikeways)) +
+  geom_bar(stat = "identity", fill = "grey") +
+  labs(title = "Number of Bikeways Installed by Year",
+       x = "Year of Installation",
+       y = "Number of Bikeways") +
+  scale_x_continuous(breaks = seq(min(installed_data$INSTALLED), max(installed_data$INSTALLED), by = 1)) +  # Display all years
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotates x-axis labels for readability
+
+# Save Chart
+ggsave("other/charts/installed_by_year.jpg")
+This code block mirrors the steps of cleaning the data and generating the chart, tailored to the "INSTALLED" column.
