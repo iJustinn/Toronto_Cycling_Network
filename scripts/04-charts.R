@@ -22,7 +22,7 @@ coordinates_data <- read_csv("data/analysis_data/coordinates_data.csv")
 #### Chart 1 ####
 # Map
 ggplot(coordinates_data, aes(x = longitude, y = latitude)) +
-  geom_point(size = 0.5, color = "black") +  # Plot points instead of paths
+  geom_point(size = 0.1, color = "black") +  # Plot points instead of paths
   labs(title = "Map of Bike Lanes Locations in Toronto", x = "Longitude", y = "Latitude") +
   theme_minimal() +
   # Set appropriate limits for Toronto area coordinates
