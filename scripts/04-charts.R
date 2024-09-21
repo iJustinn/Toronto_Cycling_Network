@@ -137,4 +137,136 @@ ggsave("other/charts/lane_type.jpg")
 
 
 
+#### Chart 5 ####
+# Upgraded of Low Comfort
+# Load the data
+lane_type_data <- read_csv("data/analysis_data/lane_type_data.csv")
+
+# Filter data for 'Low Comfort' lanes and categorize as 'Upgraded' or 'Not Upgraded'
+low_comfort_data <- lane_type_data %>%
+  filter(Comfort_Level == "Low Comfort") %>%
+  mutate(
+    Upgrade_Status = ifelse(is.na(UPGRADED), "Not Upgraded", "Upgraded")
+  ) %>%
+  group_by(Upgrade_Status) %>%
+  summarise(count = n())  # Count the occurrences of each category
+
+# Calculate percentages
+low_comfort_data <- low_comfort_data %>%
+  mutate(percentage = round((count / sum(count)) * 100, 2))  # Add percentage column
+
+# Define colors for 'Upgraded' and 'Not Upgraded' categories
+upgrade_colors <- c(
+  "Upgraded" = "#8A7967",  # Gray-brown for upgraded
+  "Not Upgraded" = "#B39B8E"  # Muted pinkish tone for not upgraded
+)
+
+# Generate the pie chart with borders and larger text/legend for Low Comfort lanes
+ggplot(low_comfort_data, aes(x = "", y = percentage, fill = Upgrade_Status)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +  # Add black border lines around pie sections
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = paste0(percentage, "%")), 
+            position = position_stack(vjust = 0.5), 
+            size = 6,   # Increase text size for percentage labels
+            fontface = "bold") +  # Make percentage text bold
+  scale_fill_manual(values = upgrade_colors) +  # Apply colors for Upgraded vs Not Upgraded
+  labs(title = "Distribution of Low Comfort Lanes: Upgraded vs Not Upgraded", fill = "Upgrade Status") +
+  theme_void() +  # Remove axis, grid lines, and background
+  theme(legend.position = "right", 
+        legend.title = element_text(size = 16),  # Increase legend title size
+        legend.text = element_text(size = 14))  # Increase legend text size
+
+# Save the chart
+ggsave("other/charts/low_comfort_upgrade_distribution.jpg")
+
+
+
+#### Chart 6 ####
+# Upgraded of Moderate Comfort
+# Load the data
+lane_type_data <- read_csv("data/analysis_data/lane_type_data.csv")
+
+# Filter data for 'Moderate Comfort' lanes and categorize as 'Upgraded' or 'Not Upgraded'
+moderate_comfort_data <- lane_type_data %>%
+  filter(Comfort_Level == "Moderate Comfort") %>%
+  mutate(
+    Upgrade_Status = ifelse(is.na(UPGRADED), "Not Upgraded", "Upgraded")
+  ) %>%
+  group_by(Upgrade_Status) %>%
+  summarise(count = n())  # Count the occurrences of each category
+
+# Calculate percentages
+moderate_comfort_data <- moderate_comfort_data %>%
+  mutate(percentage = round((count / sum(count)) * 100, 2))  # Add percentage column
+
+# Define colors for 'Upgraded' and 'Not Upgraded' categories
+upgrade_colors_moderate <- c(
+  "Upgraded" = "#8A7967",  # Gray-brown for upgraded
+  "Not Upgraded" = "#B39B8E"  # Muted brownish-pink for not upgraded
+)
+
+# Generate the pie chart for Moderate Comfort lanes
+ggplot(moderate_comfort_data, aes(x = "", y = percentage, fill = Upgrade_Status)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +  # Add black border lines around pie sections
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = paste0(percentage, "%")), 
+            position = position_stack(vjust = 0.5), 
+            size = 6,   # Increase text size for percentage labels
+            fontface = "bold") +  # Make percentage text bold
+  scale_fill_manual(values = upgrade_colors_moderate) +  # Apply colors for Upgraded vs Not Upgraded
+  labs(title = "Distribution of Moderate Comfort Lanes: Upgraded vs Not Upgraded", fill = "Upgrade Status") +
+  theme_void() +  # Remove axis, grid lines, and background
+  theme(legend.position = "right", 
+        legend.title = element_text(size = 16),  # Increase legend title size
+        legend.text = element_text(size = 14))  # Increase legend text size
+
+# Save the chart
+ggsave("other/charts/moderate_comfort_upgrade_distribution.jpg")
+
+
+
+#### Chart 7 ####
+# Upgraded of High Comfort
+# Load the data
+lane_type_data <- read_csv("data/analysis_data/lane_type_data.csv")
+# Load the cleaned lane type data
+lane_type_data <- read_csv("data/analysis_data/lane_type_data.csv")
+
+# Filter data for 'High Comfort' lanes and categorize as 'Upgraded' or 'Not Upgraded'
+high_comfort_data <- lane_type_data %>%
+  filter(Comfort_Level == "High Comfort") %>%
+  mutate(
+    Upgrade_Status = ifelse(is.na(UPGRADED), "Not Upgraded", "Upgraded")
+  ) %>%
+  group_by(Upgrade_Status) %>%
+  summarise(count = n())  # Count the occurrences of each category
+
+# Calculate percentages
+high_comfort_data <- high_comfort_data %>%
+  mutate(percentage = round((count / sum(count)) * 100, 2))  # Add percentage column
+
+# Define colors for 'Upgraded' and 'Not Upgraded' categories
+upgrade_colors_high <- c(
+  "Upgraded" = "#6E7062",  # Dark muted gray-green for upgraded
+  "Not Upgraded" = "#B39B8E"  # Muted brownish-pink for not upgraded
+)
+
+# Generate the pie chart for High Comfort lanes
+ggplot(high_comfort_data, aes(x = "", y = percentage, fill = Upgrade_Status)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +  # Add black border lines around pie sections
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = paste0(percentage, "%")), 
+            position = position_stack(vjust = 0.5), 
+            size = 6,   # Increase text size for percentage labels
+            fontface = "bold") +  # Make percentage text bold
+  scale_fill_manual(values = upgrade_colors_high) +  # Apply colors for Upgraded vs Not Upgraded
+  labs(title = "Distribution of High Comfort Lanes: Upgraded vs Not Upgraded", fill = "Upgrade Status") +
+  theme_void() +  # Remove axis, grid lines, and background
+  theme(legend.position = "right", 
+        legend.title = element_text(size = 16),  # Increase legend title size
+        legend.text = element_text(size = 14))  # Increase legend text size
+
+# Save the chart
+ggsave("other/charts/high_comfort_upgrade_distribution.jpg")
+
 
