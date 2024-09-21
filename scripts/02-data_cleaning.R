@@ -1,11 +1,10 @@
 #### Preamble ####
-# Purpose: Cleans the raw plane data recorded by two observers..... [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 6 April 2023 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# Purpose: Cleans the raw plane data recorded by two observers
+# Author: Justin [...UPDATE THIS...]
+# Date: 21 September 2024
+# Contact: justin@example.com [...UPDATE THIS...]
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+# Pre-requisites: Dataset with geometry field containing valid JSON-like data
 
 
 
@@ -25,49 +24,59 @@ data <- read_csv("data/raw_data/raw_data.csv")
 
 #### Clean data ####
 
-# Map data
-# Function to replace single quotes with double quotes and parse JSON
+# Function to extract and clean coordinates from geometry
 extract_coordinates <- function(geo) {
   if (!is.na(geo)) {
-    # Replace single quotes with double quotes to create valid JSON
+    # Clean and prepare the JSON-like structure
     geo_clean <- gsub("'", "\"", geo)
     
-    # Convert the geometry field from JSON-like to a proper R list and extract the 'coordinates'
-    json_data <- fromJSON(geo_clean)
+    # Convert to JSON and extract coordinates
+    json_data <- tryCatch({
+      fromJSON(geo_clean)
+    }, error = function(e) {
+      return(NULL)
+    })
     
-    # Extract and flatten coordinates (longitude and latitude pairs)
-    coords <- unlist(json_data$coordinates, recursive = TRUE)
-    
-    # Group every two values as a pair (longitude, latitude)
-    coords_matrix <- matrix(coords, ncol = 2, byrow = TRUE)
-    
-    # Return the coordinates matrix as a dataframe
-    return(as.data.frame(coords_matrix))
-  } else {
-    return(NA)
+    if (!is.null(json_data) && !is.null(json_data$coordinates)) {
+      # Flatten coordinates (assuming it's a nested list)
+      coords <- unlist(json_data$coordinates, recursive = TRUE)
+      
+      # Separate longitude (starting with -79) and latitude (starting with 43)
+      longitude <- coords[grepl("^-79", coords)]
+      latitude <- coords[grepl("^43", coords)]
+      
+      # Ensure we have pairs
+      if (length(longitude) == length(latitude)) {
+        coords_matrix <- cbind(longitude, latitude)
+        return(as.data.frame(coords_matrix))
+      }
+    }
   }
+  
+  return(NULL)  # Return NULL for invalid or empty data
 }
 
 # Apply the function to extract all coordinates from the 'geometry' column
 all_coordinates <- lapply(data$geometry, extract_coordinates)
 
+# Filter out any NULL values from the list of extracted coordinates
+valid_coordinates <- all_coordinates[!sapply(all_coordinates, is.null)]
+
 # Create a unique ID for each geometry feature (so we know which points belong together)
 data$id <- seq_len(nrow(data))
 
-# Combine all coordinates into a single dataframe, including their corresponding IDs
+# Combine all valid coordinates into a single dataframe with IDs
 coordinates_data <- do.call(rbind, Map(function(coords, id) {
   coords$id <- id  # Add ID to each set of coordinates
   return(coords)
-}, all_coordinates, data$id))
+}, valid_coordinates, data$id[!sapply(all_coordinates, is.null)]))
 
 # Set column names for the longitude and latitude
 colnames(coordinates_data) <- c("longitude", "latitude", "id")
 
-# Remove rows with NA values
-coordinates_data <- coordinates_data %>% filter(!is.na(longitude), !is.na(latitude))
-
-
-
+# Ensure no NA values exist in longitude and latitude
+coordinates_data <- coordinates_data %>%
+  filter(!is.na(longitude), !is.na(latitude))
 
 
 
