@@ -126,4 +126,33 @@ write_csv(
 
 
 
+#### Clean data 3 ####
+# Lane Type data
+# Load the dataset
+data <- read_csv("data/raw_data/raw_data.csv")
+
+# Clean and classify the 'INFRA-HIGHORDER' and 'INFRA-LOWORDER' columns, and retain year data
+lane_type_data <- data %>%
+  select(INFRA_HIGHORDER, INFRA_LOWORDER, INSTALLED, UPGRADED) %>%   # Select relevant columns including year data
+  filter(!is.na(INFRA_HIGHORDER) & !is.na(INFRA_LOWORDER)) %>%       # Remove rows with NA values
+  mutate(
+    Comfort_Level = case_when(                                       # Combine both columns into one classification
+      str_detect(INFRA_HIGHORDER, "Protected|Multi-Use") | str_detect(INFRA_LOWORDER, "Protected|Multi-Use") ~ "High Comfort",
+      str_detect(INFRA_HIGHORDER, "Bike Lane") | str_detect(INFRA_LOWORDER, "Bike Lane") ~ "Moderate Comfort",
+      TRUE ~ "Low Comfort"
+    )
+  ) %>%
+  select(INSTALLED, UPGRADED, Comfort_Level)                         # Keep year data and the final classification column
+
+# Save the cleaned and classified data
+write_csv(
+  x = lane_type_data,
+  file = "data/analysis_data/lane_type_data.csv"
+)
+
+
+
+
+
+
 
