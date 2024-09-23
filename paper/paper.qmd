@@ -8,6 +8,8 @@ date: today
 date-format: long
 abstract: "My abstract"
 format: pdf
+toc: true
+toc-depth: 3
 number-sections: true
 bibliography: references.bib
 ---
@@ -17,19 +19,75 @@ bibliography: references.bib
 #| warning: false
 #| message: false
 
-library(tidyverse)
-library(palmerpenguins)
+# Load packages
+package_list <- c("sf", "readr", "ggplot2", "osmdata", "tidyverse", "jsonlite", "dplyr")
+
+# Function to check and install missing packages
+install_and_load <- function(package_list) {
+  for (package in package_list) {
+    if (!require(package, character.only = TRUE)) {
+      install.packages(package)
+      library(package, character.only = TRUE)
+    }
+  }
+}
+
+install_and_load(package_list)
 ```
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+
+# Load data
+
+
+
+```
+
+
 
 # Introduction
 
 You can and should cross-reference sections and sub-sections. We use @citeR.
 
-The remainder of this paper is structured as follows. @sec-data....
+The remainder of this paper is structured as follows. 
 
 
 
 # Data {#sec-data}
+
+## Source
+
+The data used in this paper was collected by the OpenDataToronto Library [@citeODT]. OpenDataToronto provides a platform for the public to access various datasets related to Toronto’s civic operations and urban infrastructure. The specific dataset used in this research is the 'Cycling Network' [@citeDataset], which provides detailed information on Toronto’s bicycle infrastructure, including dedicated lanes, multi-use trails, and shared roadways. This dataset plays a crucial role in promoting active transportation and urban sustainability efforts within the city. It is frequently updated to reflect ongoing expansions and modifications to the cycling infrastructure, aligning with Toronto's broader efforts to reduce congestion, enhance mobility, and support environmental goals. This dataset not only informs local decisions but also contributes to broader discussions on urban transportation planning and sustainability in growing cities around the world.
+
+Data used in this paper was downloaded, cleaned and analyzed with the programming language R [@citeR]. Also with support of additional packages in R: `sf` [], `readr` [@citeReadr], `ggplot2` [@citeGgplot], `osmdata` [], `tidyverse` [@citeTidyverse], `jsonlite` [], `dplyr` [@citeDplyr], .
+
+## Measurement
+
+The 'Cycling Network' dataset from Open Data Toronto tracks various aspects of Toronto's cycling infrastructure, such as installation dates, upgrades, street names, and the type of infrastructure (e.g., sharrows, multi-use trails). Each entry represents a segment of the cycling network, where real-world phenomena, such as the construction or upgrading of cycling paths, are documented. For example, when a cycling path is installed or upgraded, the responsible authorities collect information such as the installation year (e.g., 2001) and any subsequent upgrades (e.g., 2021). This data is then digitized into structured entries in the dataset.
+
+To go from a physical event (e.g., the installation of a bike lane) to a dataset entry, detailed records are maintained by the city's transportation department. These records are geospatially coded (as seen in the `geometry` column), allowing each cycling path to be mapped precisely in relation to other city infrastructure. Thus, the phenomena of constructing or updating a bike lane becomes an entry with attributes such as the street name, road class, and installation history. This allows researchers to analyze trends in cycling infrastructure and its expansion over time.
+
+## Method {#sec-data-method}
+
+```{r}
+#| echo: false
+#| eval: true
+#| label: tbl-one
+#| tbl-cap: "cap"
+#| warning: false
+
+
+
+```
+
+
+
+# Results {#sec-res}
+
+## Data Trend
 
 ```{r}
 #| label: fig-one
@@ -55,26 +113,21 @@ The remainder of this paper is structured as follows. @sec-data....
 
 
 
-# Results
-
-```{r}
-#| echo: false
-#| eval: true
-#| label: tbl-one
-#| tbl-cap: "cap"
-#| warning: false
+## Distributions
 
 
 
-```
+## Maps
+
+
 
 Our results are summarized in @tbl-modelresults.
 
 
 
-# Discussion
+# Discussion {#sec-dis}
 
-## First discussion point {#sec-first-point}
+## First discussion point
 
 If my paper were 10 pages, then should be be at least 2.5 pages. The discussion is a chance to show off what you know and what you learnt from all this. 
 
@@ -96,7 +149,7 @@ Weaknesses and next steps should also be included.
 
 
 
-# Appendix {-}
+# Appendix {#sec-app}
 
 
 
