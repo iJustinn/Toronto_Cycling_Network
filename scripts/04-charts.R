@@ -259,8 +259,6 @@ ggsave("other/charts/moderate_comfort_upgrade_distribution.jpg")
 # Upgraded of High Comfort
 # Load the data
 lane_type_data <- read_csv("data/analysis_data/lane_type_data.csv")
-# Load the cleaned lane type data
-lane_type_data <- read_csv("data/analysis_data/lane_type_data.csv")
 
 # Filter data for 'High Comfort' lanes and categorize as 'Upgraded' or 'Not Upgraded'
 high_comfort_data <- lane_type_data %>%
