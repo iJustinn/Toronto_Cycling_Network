@@ -83,6 +83,7 @@ head(data_geometry) %>%
   kable("latex", booktabs = TRUE, col.names = c("Simplified Geometry")) %>%
   kable_styling(latex_options = c("hold_position")) %>%
   column_spec(1, width = "40em")  # Adjust the width as needed
+
 ```
 
 ```{r}
@@ -135,6 +136,7 @@ coordinates_data <- coordinates_data %>% filter(!is.na(Longitude), !is.na(Latitu
 # Display the first few rows of the cleaned coordinate data
 head(coordinates_data) %>%
   kable("latex", booktabs = TRUE, col.names = c("Longitude", "Latitude", "ID"))
+
 ```
 
 In the first data cleaning process, the focus was on extracting and cleaning geographical coordinates from the 'geometry' column, which contains location data in JSON-like format, @tbl-raw-coordinates displays how the data was like. A custom function was created to parse the coordinates, filter out invalid entries, and extract the longitude and latitude values. The extracted coordinates were combined into a new dataset shon in @tbl-clean-coordinates, with unique IDs to match the original entries. Any rows with missing coordinate data were removed, and the cleaned data was saved into a separate file for further analysis.
@@ -169,6 +171,7 @@ upgraded_summary <- upgraded_data %>%
 # Step 5: Display the summarized data in a table
 tail(upgraded_summary) %>%
   kable("latex", booktabs = TRUE, col.names = c("Year", "Number of Upgraded Lanes"))
+
 ```
 
 The second cleaning process dealt with the 'UPGRADED' column, which contains information about the years when cycling lanes were upgraded. Invalid or missing years were filtered out, and the remaining valid data was converted to a numeric format. The dataset was then grouped by the year of upgrade, with a summary created to count the number of lanes upgraded in each year. This summarized data, @tbl-clean-upgraded, was saved for use in analyzing trends in lane upgrades over time.
@@ -203,6 +206,7 @@ installed_summary <- installed_data %>%
 # Step 5: Display only the first 6 rows of the summarized data in a table
 head(installed_summary) %>%
   kable("latex", booktabs = TRUE, col.names = c("Year", "Number of Installed Bikeways"))
+
 ```
 
 In the third cleaning process, the focus was on the 'INSTALLED' column, which records the years when cycling infrastructure was first installed. Similar to the 'UPGRADED' column, invalid or missing years were removed, and the data was converted to numeric format. The installation data was grouped by year to count the number of bikeways installed each year. The resulting summary, @tbl-clean-installed, was saved for further trend analysis on the growth of the cycling network.
@@ -242,6 +246,7 @@ final_lane_data <- lane_type_data %>%
 # Step 5: Display the first 6 rows of the cleaned and classified data
 head(final_lane_data) %>%
   kable("latex", booktabs = TRUE, col.names = c("Installed Year", "Upgraded Year", "Comfort Level"))
+
 ```
 
 Finally, the fourth cleaning process involved classifying cycling lanes based on the type of infrastructure. Data from the 'INFRA_HIGHORDER' and 'INFRA_LOWORDER' columns was cleaned, and missing values were removed. The lanes were classified into three comfort levels: High Comfort, Moderate Comfort, and Low Comfort, depending on whether the infrastructure was protected or involved bike lanes. The classification, along with year data for installation and upgrades, was saved for analysis on the types of cycling lanes and their comfort levels. @tbl-clean-comfort shows how it looks like.
@@ -250,25 +255,81 @@ Finally, the fourth cleaning process involved classifying cycling lanes based on
 
 ## Data Trend
 
+
+
 ```{r}
-#| label: fig-one
-#| fig-cap: one
+#| label: fig-installed
+#| fig-cap: "Toronto Bikeways Installed by Year"
+#| fig-subcap: ["Number", "Trend"]
 #| echo: false
+#| warning: false
+#| message: false
+#| layout-ncol: 2
+#| layout-nrow: 1
+
+# Load the data
+installed_data <- read_csv(here("data", "analysis_data", "installed_data.csv"))
+
+# Generate the bar chart for "Number of Bikeways Installed by Year"
+ggplot(installed_data, aes(x = INSTALLED, y = num_bikeways)) +
+  geom_bar(stat = "identity", fill = "darkgrey") +  # Bar chart
+  labs(x = "Year of Installation",
+       y = "Number of Bikeways") +
+  scale_x_continuous(breaks = seq(min(installed_data$INSTALLED), max(installed_data$INSTALLED), by = 1)) +  # Display all years
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotates x-axis labels for readability
 
 
+
+# Generate the line chart with trend line for "Number of Bikeways Installed by Year"
+ggplot(installed_data, aes(x = INSTALLED, y = num_bikeways)) +
+  geom_line(aes(group = 1), color = "black", size = 1) +  # Adds a line connecting each point
+  geom_point(color = "black", size = 2) +  # Adds points at each data value
+  geom_smooth(method = "lm", color = "red", se = FALSE) +  # Adds a linear trend line
+  labs(x = "Year of Installation",
+       y = "Number of Bikeways") +
+  scale_x_continuous(breaks = seq(min(installed_data$INSTALLED), max(installed_data$INSTALLED), by = 1)) +  # Display all years
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotates x-axis labels for readability
 
 ```
 
 
 
 ```{r}
-#| label: fig-two
-#| fig-cap: two
+#| label: fig-upgraded
+#| fig-cap: "Toronto Bikeways Upgraded by Year"
+#| fig-subcap: ["Number", "Trend"]
 #| echo: false
 #| warning: false
 #| message: false
+#| layout-ncol: 2
+#| layout-nrow: 1
+
+# Load the data
+upgraded_data <- read_csv(here("data", "analysis_data", "upgraded_data.csv"))
+
+# Generate the bar chart for "Number of Bikeways Upgraded by Year"
+ggplot(upgraded_data, aes(x = UPGRADED, y = num_lanes)) +
+  geom_bar(stat = "identity", fill = "darkgrey") +  # Bar chart
+  labs(x = "Year of Upgrade",
+       y = "Number of Bikeways") +
+  scale_x_continuous(breaks = seq(min(upgraded_data$UPGRADED), max(upgraded_data$UPGRADED), by = 1)) +  # Display all years
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotates x-axis labels for readability
 
 
+
+# Generate the line chart with trend line for "Number of Bikeways Upgraded by Year"
+ggplot(upgraded_data, aes(x = UPGRADED, y = num_lanes)) +
+  geom_line(aes(group = 1), color = "black", size = 1) +  # Adds a line connecting each point
+  geom_point(color = "black", size = 2) +  # Adds points at each data value
+  geom_smooth(method = "lm", color = "red", se = FALSE) +  # Adds a linear trend line
+  labs(x = "Year of Upgrade",
+       y = "Number of Bikeways") +
+  scale_x_continuous(breaks = seq(min(upgraded_data$UPGRADED), max(upgraded_data$UPGRADED), by = 1)) +  # Display all years
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotates x-axis labels for readability
 
 ```
 
@@ -276,15 +337,211 @@ Finally, the fourth cleaning process involved classifying cycling lanes based on
 
 ## Distributions
 
+```{r}
+#| label: fig-comfort
+#| fig-cap: "Toronto Bikeway Comfort Level Distribution"
+#| fig-subcap: ["All levels", "Low Comfort", "Moderate Comfort", "High Comfort"]
+#| echo: false
+#| warning: false
+#| message: false
+#| layout-ncol: 2
+#| layout-nrow: 2
+
+# Load the data
+lane_type_data <- read_csv(here("data", "analysis_data", "lane_type_data.csv"))
+
+# Combine the 'INSTALLED' and 'UPGRADED' years into one column for better visualization
+lane_type_years <- lane_type_data %>%
+  pivot_longer(cols = c(INSTALLED, UPGRADED), names_to = "Year_Type", values_to = "Year") %>%
+  filter(!is.na(Year)) %>%  # Remove NA values in the 'Year' column
+  group_by(Comfort_Level) %>%
+  summarise(count = n())  # Count the occurrences of each Comfort Level
+
+# Calculate percentages
+lane_type_years <- lane_type_years %>%
+  mutate(percentage = round((count / sum(count)) * 100, 2))  # Add percentage column
+
+# Define a more contrasting Morandi-inspired color scheme
+contrasting_morandi_colors <- c(
+  "High Comfort" = "#B39B8E",   # Muted brownish-pink
+  "Moderate Comfort" = "#8A7967", # Stronger grey-brown
+  "Low Comfort" = "#6E7062"     # Dark muted gray-green
+)
+
+# Generate the pie chart with border lines and larger text/legend
+ggplot(lane_type_years, aes(x = "", y = percentage, fill = Comfort_Level)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +  # Add black border lines around pie sections
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = paste0(percentage, "%")), 
+            position = position_stack(vjust = 0.5), 
+            size = 6,   # Increase text size for percentage labels
+            fontface = "bold") +  # Make percentage text bold
+  scale_fill_manual(values = contrasting_morandi_colors) +  # Apply the more contrasting Morandi colors
+  labs(fill = "Comfort Level") +
+  theme_void() +  # Remove axis, grid lines, and background
+  theme(legend.position = "right", 
+        legend.title = element_text(size = 16),  # Increase legend title size
+        legend.text = element_text(size = 14))  # Increase legend text size
+
+
+
+# Filter data for 'Low Comfort' lanes and categorize as 'Upgraded' or 'Not Upgraded'
+low_comfort_data <- lane_type_data %>%
+  filter(Comfort_Level == "Low Comfort") %>%
+  mutate(
+    Upgrade_Status = ifelse(is.na(UPGRADED), "Not Upgraded", "Upgraded")
+  ) %>%
+  group_by(Upgrade_Status) %>%
+  summarise(count = n())  # Count the occurrences of each category
+
+# Calculate percentages
+low_comfort_data <- low_comfort_data %>%
+  mutate(percentage = round((count / sum(count)) * 100, 2))  # Add percentage column
+
+# Define colors for 'Upgraded' and 'Not Upgraded' categories
+upgrade_colors_low <- c(
+  "Upgraded" = "#8A7967",  # Gray-brown for upgraded
+  "Not Upgraded" = "#B39B8E"  # Muted pinkish tone for not upgraded
+)
+
+# Generate the pie chart with borders and larger text/legend for Low Comfort lanes
+ggplot(low_comfort_data, aes(x = "", y = percentage, fill = Upgrade_Status)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +  # Add black border lines around pie sections
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = paste0(percentage, "%")), 
+            position = position_stack(vjust = 0.5), 
+            size = 6,   # Increase text size for percentage labels
+            fontface = "bold") +  # Make percentage text bold
+  scale_fill_manual(values = upgrade_colors_low) +  # Apply colors for Upgraded vs Not Upgraded
+  labs(fill = "Upgrade Status") +
+  theme_void() +  # Remove axis, grid lines, and background
+  theme(legend.position = "right", 
+        legend.title = element_text(size = 16),  # Increase legend title size
+        legend.text = element_text(size = 14))  # Increase legend text size
+
+
+
+# Filter data for 'Moderate Comfort' lanes and categorize as 'Upgraded' or 'Not Upgraded'
+moderate_comfort_data <- lane_type_data %>%
+  filter(Comfort_Level == "Moderate Comfort") %>%
+  mutate(
+    Upgrade_Status = ifelse(is.na(UPGRADED), "Not Upgraded", "Upgraded")
+  ) %>%
+  group_by(Upgrade_Status) %>%
+  summarise(count = n())  # Count the occurrences of each category
+
+# Calculate percentages
+moderate_comfort_data <- moderate_comfort_data %>%
+  mutate(percentage = round((count / sum(count)) * 100, 2))  # Add percentage column
+
+# Define colors for 'Upgraded' and 'Not Upgraded' categories
+upgrade_colors_moderate <- c(
+  "Upgraded" = "#8A7967",  # Gray-brown for upgraded
+  "Not Upgraded" = "#B39B8E"  # Muted pinkish tone for not upgraded
+)
+
+# Generate the pie chart for Moderate Comfort lanes
+ggplot(moderate_comfort_data, aes(x = "", y = percentage, fill = Upgrade_Status)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +  # Add black border lines around pie sections
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = paste0(percentage, "%")), 
+            position = position_stack(vjust = 0.5), 
+            size = 6,   # Increase text size for percentage labels
+            fontface = "bold") +  # Make percentage text bold
+  scale_fill_manual(values = upgrade_colors_moderate) +  # Apply colors for Upgraded vs Not Upgraded
+  labs(fill = "Upgrade Status") +
+  theme_void() +  # Remove axis, grid lines, and background
+  theme(legend.position = "right", 
+        legend.title = element_text(size = 16),  # Increase legend title size
+        legend.text = element_text(size = 14))  # Increase legend text size
+
+
+
+# Filter data for 'High Comfort' lanes and categorize as 'Upgraded' or 'Not Upgraded'
+high_comfort_data <- lane_type_data %>%
+  filter(Comfort_Level == "High Comfort") %>%
+  mutate(
+    Upgrade_Status = ifelse(is.na(UPGRADED), "Not Upgraded", "Upgraded")
+  ) %>%
+  group_by(Upgrade_Status) %>%
+  summarise(count = n())  # Count the occurrences of each category
+
+# Calculate percentages
+high_comfort_data <- high_comfort_data %>%
+  mutate(percentage = round((count / sum(count)) * 100, 2))  # Add percentage column
+
+# Define colors for 'Upgraded' and 'Not Upgraded' categories
+upgrade_colors_high <- c(
+  "Upgraded" = "#8A7967",  # Gray-brown for upgraded
+  "Not Upgraded" = "#B39B8E"  # Muted pinkish tone for not upgraded
+)
+
+# Generate the pie chart for High Comfort lanes
+ggplot(high_comfort_data, aes(x = "", y = percentage, fill = Upgrade_Status)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +  # Add black border lines around pie sections
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = paste0(percentage, "%")), 
+            position = position_stack(vjust = 0.5), 
+            size = 6,   # Increase text size for percentage labels
+            fontface = "bold") +  # Make percentage text bold
+  scale_fill_manual(values = upgrade_colors_high) +  # Apply colors for Upgraded vs Not Upgraded
+  labs(fill = "Upgrade Status") +
+  theme_void() +  # Remove axis, grid lines, and background
+  theme(legend.position = "right", 
+        legend.title = element_text(size = 16),  # Increase legend title size
+        legend.text = element_text(size = 14))  # Increase legend text size
+
+```
 
 
 ## Maps
 
+```{r}
+#| label: fig-map
+#| fig-cap: "Map of Bike Lanes Locations in Toronto"
+#| echo: false
+#| warning: false
+#| message: false
+#| fig-width: 11
+#| fig-height: 8
 
+# Load the data
+coordinates_data <- read_csv(here("data", "analysis_data", "coordinates_data.csv"))
 
-Our results are summarized in @tbl-modelresults.
+# Get bounding box for Toronto (approximate limits for Toronto)
+toronto_bbox <- c(-79.6303856025883, 43.5822069220627, -79.1180336515019, 43.8554571861712)
 
+# Fetch map data from OpenStreetMap (OSM)
+toronto_map <- opq(bbox = toronto_bbox) %>%
+  add_osm_feature(key = 'highway', value = 'primary') %>%
+  osmdata_sf()
 
+# Convert map data to Simple Features (sf) objects
+streets <- toronto_map$osm_lines
+
+# Plot the map with bike lanes data
+ggplot() +
+  geom_sf(data = streets, color = "gray", size = 0.3, alpha = 0.6) +  # OSM street map layer
+  geom_point(data = coordinates_data, aes(x = longitude, y = latitude), 
+             size = 0.1, color = "black") +  # Bike lanes points
+  labs(x = "Longitude", y = "Latitude") +
+  coord_sf(xlim = c(-79.6303856025883, -79.1180336515019), 
+           ylim = c(43.5822069220627, 43.8554571861712), expand = FALSE) +
+  theme_minimal() +
+  theme(
+    panel.background = element_blank(),  # Remove panel background
+    panel.grid.major = element_blank(),  # Remove major grid lines
+    panel.grid.minor = element_blank(),  # Remove minor grid lines
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+```
+
+@fig-map provides a visual representation of the bike lane infrastructure across Toronto. The lines on the map correspond to various cycling paths, including dedicated bike lanes, multi-use paths, and shared roadways, which span different areas of the city. The geographic coordinates, ranging from around 43.60°N to 43.85°N in latitude and -79.6°W to -79.3°W in longitude, encompass most of Toronto’s urban region. This map offers an important spatial perspective, illustrating the extensive network of cycling routes that connect different neighborhoods and areas within the city.
+
+A key observation from the map is the dense concentration of bike lanes in the downtown core and along major roadways, indicating a well-established network in central Toronto. The downtown area’s grid-like structure is particularly evident, showcasing a high density of lanes that facilitate easy cycling access within the city's busiest areas. As one moves further away from the city center, the map shows fewer bike lanes, suggesting that suburban regions may have less developed cycling infrastructure. However, there are notable multi-use paths extending toward the outskirts, particularly in parks and recreational areas, providing important cycling connections for those commuting or using bikes for recreational purposes.
+
+This map highlights the importance of cycling infrastructure in promoting sustainable urban transportation. The wide distribution of bike lanes supports Toronto's efforts to enhance active transportation options, reduce traffic congestion, and improve accessibility for cyclists. The representation also provides a foundation for analyzing areas where future infrastructure developments could be prioritized, particularly in regions where cycling connectivity appears sparse.
 
 # Discussion {#sec-dis}
 
