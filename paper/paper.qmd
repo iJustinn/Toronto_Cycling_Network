@@ -20,7 +20,7 @@ bibliography: references.bib
 #| message: false
 
 # Load packages
-package_list <- c("sf", "readr", "ggplot2", "osmdata", "tidyverse", "jsonlite", "dplyr")
+package_list <- c("sf", "readr", "ggplot2", "osmdata", "tidyverse", "jsonlite", "dplyr", "here", "knitr", "kableExtra")
 
 # Function to check and install missing packages
 install_and_load <- function(package_list) {
@@ -33,17 +33,6 @@ install_and_load <- function(package_list) {
 }
 
 install_and_load(package_list)
-```
-
-```{r}
-#| include: false
-#| warning: false
-#| message: false
-
-# Load data
-
-
-
 ```
 
 
@@ -62,28 +51,200 @@ The remainder of this paper is structured as follows.
 
 The data used in this paper was collected by the OpenDataToronto Library [@citeODT]. OpenDataToronto provides a platform for the public to access various datasets related to Toronto’s civic operations and urban infrastructure. The specific dataset used in this research is the 'Cycling Network' [@citeDataset], which provides detailed information on Toronto’s bicycle infrastructure, including dedicated lanes, multi-use trails, and shared roadways. This dataset plays a crucial role in promoting active transportation and urban sustainability efforts within the city. It is frequently updated to reflect ongoing expansions and modifications to the cycling infrastructure, aligning with Toronto's broader efforts to reduce congestion, enhance mobility, and support environmental goals. This dataset not only informs local decisions but also contributes to broader discussions on urban transportation planning and sustainability in growing cities around the world.
 
-Data used in this paper was downloaded, cleaned and analyzed with the programming language R [@citeR]. Also with support of additional packages in R: `sf` [], `readr` [@citeReadr], `ggplot2` [@citeGgplot], `osmdata` [], `tidyverse` [@citeTidyverse], `jsonlite` [], `dplyr` [@citeDplyr], .
+Data used in this paper was downloaded, cleaned and analyzed with the programming language R [@citeR]. Also with support of additional packages which will be talked about in the @sec-data-method.
 
 ## Measurement
 
 The 'Cycling Network' dataset from Open Data Toronto tracks various aspects of Toronto's cycling infrastructure, such as installation dates, upgrades, street names, and the type of infrastructure (e.g., sharrows, multi-use trails). Each entry represents a segment of the cycling network, where real-world phenomena, such as the construction or upgrading of cycling paths, are documented. For example, when a cycling path is installed or upgraded, the responsible authorities collect information such as the installation year (e.g., 2001) and any subsequent upgrades (e.g., 2021). This data is then digitized into structured entries in the dataset.
 
-To go from a physical event (e.g., the installation of a bike lane) to a dataset entry, detailed records are maintained by the city's transportation department. These records are geospatially coded (as seen in the `geometry` column), allowing each cycling path to be mapped precisely in relation to other city infrastructure. Thus, the phenomena of constructing or updating a bike lane becomes an entry with attributes such as the street name, road class, and installation history. This allows researchers to analyze trends in cycling infrastructure and its expansion over time.
+To go from a physical event (e.g., the installation of a bike lane) to a dataset entry, detailed records are maintained by the city's transportation department. These records are geospatially coded (column geometry in this dataset), allowing each cycling path to be mapped precisely in relation to other city infrastructure. Thus, the phenomena of constructing or updating a bike lane becomes an entry with attributes such as the street name, road class, and installation history. This allows researchers to analyze trends in cycling infrastructure and its expansion over time.
 
 ## Method {#sec-data-method}
+
+Data used in this paper was cleaned, processed, modeled and tested with the programming language R [@citeR]. Also with support of additional packages in R: `sf` [], `readr` [@citeReadr], `ggplot2` [@citeGgplot], `osmdata` [], `tidyverse` [@citeTidyverse], `jsonlite` [], `dplyr` [@citeDplyr], `here` [], `knitr` [], `kableExtra` [], `` [], `` [], .
 
 ```{r}
 #| echo: false
 #| eval: true
-#| label: tbl-one
-#| tbl-cap: "cap"
+#| label: tbl-raw-coordinates
+#| tbl-cap: "Raw Coordinates"
+#| warning: false
+
+# Load the dataset
+data <- read_csv(here("data", "raw_data", "raw_data.csv"))
+
+# Extract the first part of the geometry string for each row
+data_geometry <- data %>%
+  mutate(simplified_geometry = substr(geometry, 1, 92)) %>%  # Extract the first 100 characters
+  select(simplified_geometry)
+
+# Display the simplified geometry data
+head(data_geometry) %>%
+  kable("latex", booktabs = TRUE, col.names = c("Simplified Geometry")) %>%
+  kable_styling(latex_options = c("hold_position")) %>%
+  column_spec(1, width = "40em")  # Adjust the width as needed
+```
+
+```{r}
+#| echo: false
+#| eval: true
+#| label: tbl-clean-coordinates
+#| tbl-cap: "Extracted and Cleaned Coordinates"
 #| warning: false
 
 
+# Load the dataset
+data <- read_csv(here("data", "raw_data", "raw_data.csv"))
 
+# Function to extract and clean coordinates from geometry
+extract_coordinates <- function(geo) {
+  if (!is.na(geo)) {
+    geo_clean <- gsub("'", "\"", geo)
+    json_data <- tryCatch({
+      fromJSON(geo_clean)
+    }, error = function(e) {
+      return(NULL)
+    })
+    
+    if (!is.null(json_data) && !is.null(json_data$coordinates)) {
+      coords <- unlist(json_data$coordinates, recursive = TRUE)
+      longitude <- coords[grepl("^-79", coords)]
+      latitude <- coords[grepl("^43", coords)]
+      if (length(longitude) == length(latitude)) {
+        coords_matrix <- cbind(longitude, latitude)
+        return(as.data.frame(coords_matrix))
+      }
+    }
+  }
+  return(NULL)
+}
+
+# Extract coordinates and clean data
+all_coordinates <- lapply(data$geometry, extract_coordinates)
+valid_coordinates <- all_coordinates[!sapply(all_coordinates, is.null)]
+data$id <- seq_len(nrow(data))
+coordinates_data <- do.call(rbind, Map(function(coords, id) {
+  coords$id <- id
+  return(coords)
+}, valid_coordinates, data$id[!sapply(all_coordinates, is.null)]))
+
+# Set column names and remove NA values
+colnames(coordinates_data) <- c("Longitude", "Latitude", "ID")
+coordinates_data <- coordinates_data %>% filter(!is.na(Longitude), !is.na(Latitude))
+
+# Display the first few rows of the cleaned coordinate data
+head(coordinates_data) %>%
+  kable("latex", booktabs = TRUE, col.names = c("Longitude", "Latitude", "ID"))
 ```
 
+In the first data cleaning process, the focus was on extracting and cleaning geographical coordinates from the 'geometry' column, which contains location data in JSON-like format, @tbl-raw-coordinates displays how the data was like. A custom function was created to parse the coordinates, filter out invalid entries, and extract the longitude and latitude values. The extracted coordinates were combined into a new dataset shon in @tbl-clean-coordinates, with unique IDs to match the original entries. Any rows with missing coordinate data were removed, and the cleaned data was saved into a separate file for further analysis.
 
+```{r}
+#| echo: false
+#| eval: true
+#| label: tbl-clean-upgraded
+#| tbl-cap: "Number of Lane Upgrades by Year"
+#| warning: false
+
+# Load the dataset
+data <- read_csv(here("data", "raw_data", "raw_data.csv"))
+
+# Step 1: Select the 'UPGRADED' column
+upgraded_data <- data %>%
+  select(UPGRADED)
+
+# Step 2: Filter out invalid and missing years
+upgraded_data <- upgraded_data %>%
+  filter(!is.na(UPGRADED) & UPGRADED > 1800)  # Keep valid years only
+
+# Step 3: Convert the 'UPGRADED' column to numeric
+upgraded_data <- upgraded_data %>%
+  mutate(UPGRADED = as.numeric(UPGRADED))
+
+# Step 4: Group the data by the year of upgrade and summarize the number of upgrades
+upgraded_summary <- upgraded_data %>%
+  group_by(UPGRADED) %>%
+  summarise(num_lanes = n())
+
+# Step 5: Display the summarized data in a table
+tail(upgraded_summary) %>%
+  kable("latex", booktabs = TRUE, col.names = c("Year", "Number of Upgraded Lanes"))
+```
+
+The second cleaning process dealt with the 'UPGRADED' column, which contains information about the years when cycling lanes were upgraded. Invalid or missing years were filtered out, and the remaining valid data was converted to a numeric format. The dataset was then grouped by the year of upgrade, with a summary created to count the number of lanes upgraded in each year. This summarized data, @tbl-clean-upgraded, was saved for use in analyzing trends in lane upgrades over time.
+
+```{r}
+#| echo: false
+#| eval: true
+#| label: tbl-clean-installed
+#| tbl-cap: "Number of Bikeways Installed by Year"
+#| warning: false
+
+# Load the dataset
+data <- read_csv(here("data", "raw_data", "raw_data.csv"))
+
+# Step 1: Select the 'INSTALLED' column
+installed_data <- data %>%
+  select(INSTALLED)
+
+# Step 2: Filter out invalid and missing years
+installed_data <- installed_data %>%
+  filter(!is.na(INSTALLED) & INSTALLED > 1800)  # Keep valid years only
+
+# Step 3: Convert the 'INSTALLED' column to numeric
+installed_data <- installed_data %>%
+  mutate(INSTALLED = as.numeric(INSTALLED))
+
+# Step 4: Group the data by the year of installation and summarize the number of installations
+installed_summary <- installed_data %>%
+  group_by(INSTALLED) %>%
+  summarise(num_bikeways = n())
+
+# Step 5: Display only the first 6 rows of the summarized data in a table
+head(installed_summary) %>%
+  kable("latex", booktabs = TRUE, col.names = c("Year", "Number of Installed Bikeways"))
+```
+
+In the third cleaning process, the focus was on the 'INSTALLED' column, which records the years when cycling infrastructure was first installed. Similar to the 'UPGRADED' column, invalid or missing years were removed, and the data was converted to numeric format. The installation data was grouped by year to count the number of bikeways installed each year. The resulting summary, @tbl-clean-installed, was saved for further trend analysis on the growth of the cycling network.
+
+```{r}
+#| echo: false
+#| eval: true
+#| label: tbl-clean-comfort
+#| tbl-cap: "Classification of Cycling Lanes by Comfort Level"
+#| warning: false
+
+# Load the dataset
+data <- read_csv(here("data", "raw_data", "raw_data.csv"))
+
+# Step 1: Select relevant columns for classification
+lane_type_data <- data %>%
+  select(INFRA_HIGHORDER, INFRA_LOWORDER, INSTALLED, UPGRADED)
+
+# Step 2: Filter out rows with missing values in the relevant columns
+lane_type_data <- lane_type_data %>%
+  filter(!is.na(INFRA_HIGHORDER) & !is.na(INFRA_LOWORDER))
+
+# Step 3: Classify lanes into comfort levels based on infrastructure types
+lane_type_data <- lane_type_data %>%
+  mutate(
+    Comfort_Level = case_when(
+      str_detect(INFRA_HIGHORDER, "Protected|Multi-Use") | str_detect(INFRA_LOWORDER, "Protected|Multi-Use") ~ "High Comfort",
+      str_detect(INFRA_HIGHORDER, "Bike Lane") | str_detect(INFRA_LOWORDER, "Bike Lane") ~ "Moderate Comfort",
+      TRUE ~ "Low Comfort"
+    )
+  )
+
+# Step 4: Select relevant columns to display (Comfort Level, Installed, and Upgraded year)
+final_lane_data <- lane_type_data %>%
+  select(INSTALLED, UPGRADED, Comfort_Level)
+
+# Step 5: Display the first 6 rows of the cleaned and classified data
+head(final_lane_data) %>%
+  kable("latex", booktabs = TRUE, col.names = c("Installed Year", "Upgraded Year", "Comfort Level"))
+```
+
+Finally, the fourth cleaning process involved classifying cycling lanes based on the type of infrastructure. Data from the 'INFRA_HIGHORDER' and 'INFRA_LOWORDER' columns was cleaned, and missing values were removed. The lanes were classified into three comfort levels: High Comfort, Moderate Comfort, and Low Comfort, depending on whether the infrastructure was protected or involved bike lanes. The classification, along with year data for installation and upgrades, was saved for analysis on the types of cycling lanes and their comfort levels. @tbl-clean-comfort shows how it looks like.
 
 # Results {#sec-res}
 
