@@ -61,7 +61,7 @@ To go from a physical event (e.g., the installation of a bike lane) to a dataset
 
 ## Method {#sec-data-method}
 
-Data used in this paper was cleaned, processed, modeled and tested with the programming language R [@citeR]. Also with support of additional packages in R: `sf` [], `readr` [@citeReadr], `ggplot2` [@citeGgplot], `osmdata` [], `tidyverse` [@citeTidyverse], `jsonlite` [], `dplyr` [@citeDplyr], `here` [], `knitr` [], `kableExtra` [], `` [], `` [], .
+Data used in this paper was cleaned, processed, modeled and tested with the programming language R [@citeR]. Also with support of additional packages in R: `sf` [@citeSf], `readr` [@citeReadr], `ggplot2` [@citeGgplot2], `osmdata` [@citeOsmdata], `tidyverse` [@citeTidyverse], `jsonlite` [@citeJsonlite], `dplyr` [@citeDplyr], `here` [@citeHere], `knitr` [@citeKnitr], `kableExtra` [@citeKableExtra].
 
 ```{r}
 #| echo: false
