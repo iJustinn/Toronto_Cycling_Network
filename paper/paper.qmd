@@ -39,25 +39,50 @@ install_and_load(package_list)
 
 # Introduction
 
-Urban cycling has become an increasingly vital component of sustainable transportation strategies in many cities, including Toronto. As the city grows and urban congestion intensifies, promoting active transportation options such as cycling is essential for reducing emissions, improving public health, and enhancing mobility. Toronto's efforts to develop a comprehensive cycling infrastructure began in the early 2000s, resulting in a network of bike lanes, multi-use trails, and shared roadways designed to support cyclists across the city.
+Urban cycling plays a critical role in advancing sustainable transportation strategies, especially in rapidly growing cities like Toronto. With the city facing increasing congestion, promoting active transportation modes such as cycling is essential for reducing greenhouse gas emissions, improving public health, and enhancing urban mobility. Since the early 2000s, Toronto has made significant strides in expanding its cycling infrastructure, creating a network of bike lanes, multi-use paths, and shared roadways to support cyclists citywide.
 
-This paper aims to analyze the trends in Toronto’s cycling infrastructure, focusing on the patterns of bikeway installations, upgrades, and the classification of bike lanes by comfort level. Using data from the 'Cycling Network' dataset provided by Open Data Toronto, which will be discussed in detail at @sec-data. The study covers the evolution of cycling infrastructure over the past two decades, highlighting both progress and challenges. Additionally, the geographic distribution of bike lanes across the city is examined to identify areas with potential for further development.
+This paper analyzes the evolution of Toronto's cycling infrastructure over the past two decades, focusing on the installation and upgrade trends of bikeways and their classification by comfort level. Using the 'Cycling Network' dataset from Open Data Toronto, the study examines both the spatial distribution of bike lanes and the varying levels of cycling comfort across different regions. The analysis highlights discrepancies between downtown and suburban areas, showcasing progress while identifying regions that remain underserved.
 
-The remainder of this paper is structured as follows: the data sources and methodologies are presented in @sec-data, followed by an analysis of the results in @sec-res, and a discussion of the findings in @sec-dis.
+The study's findings underscore the need for continued investment in both the expansion and quality of Toronto's cycling infrastructure to encourage more widespread adoption of cycling as a viable mode of transportation. By addressing both the geographic imbalances and comfort levels of bike lanes, the city can better meet its sustainability goals. 
+
+The structure of this paper is as follows: the data sources and methodologies are presented in @sec-data, followed by an analysis of the results in @sec-res, and a discussion of the findings in @sec-dis.
 
 # Data {#sec-data}
 
 ## Source
+The dataset analyzed in this study, the Cycling Network dataset [@citeCyclingNetwork], was retrieved from Open Data Toronto [@citeODT]. This dataset is publicly available and is continually updated to reflect Toronto’s ongoing efforts to develop and maintain its cycling infrastructure. It contains geospatial and temporal information about various cycling-related features, including the types of bikeways (dedicated lanes, shared roads, multi-use trails), installation years, and any subsequent upgrades. By offering a detailed history of Toronto's cycling network development, this dataset plays a vital role in informing both urban planning policies and research into sustainable transportation options.
 
-The data used in this paper was collected by the OpenDataToronto Library [@citeODT]. OpenDataToronto provides a platform for the public to access various datasets related to Toronto’s civic operations and urban infrastructure. The specific dataset used in this research is the 'Cycling Network' [@citeDataset], which provides detailed information on Toronto’s bicycle infrastructure, including dedicated lanes, multi-use trails, and shared roadways. This dataset plays a crucial role in promoting active transportation and urban sustainability efforts within the city. It is frequently updated to reflect ongoing expansions and modifications to the cycling infrastructure, aligning with Toronto's broader efforts to reduce congestion, enhance mobility, and support environmental goals. This dataset not only informs local decisions but also contributes to broader discussions on urban transportation planning and sustainability in growing cities around the world.
+While the Cycling Network dataset was the primary source of data, other relevant datasets were explored, such as the Road Network File [@citeStatCan] from Statistics Canada, which provides detailed geospatial data on all roadways in Toronto. Another such alternative was the Major City-Wide Cycling Routes dataset [@citeCyclingRoutes], also available on Open Data Toronto [@citeODT]. However, this dataset focuses specifically on the large-scale cycling routes connecting different parts of the city, emphasizing connectivity at a macro level. While these two dataset are useful for analyzing high-level transportation patterns, it lacks the detailed, segment-level data—such as comfort levels, installation dates, and upgrade history—that are crucial for a deep analysis of cycling infrastructure. Since this paper focuses on both the growth and quality of cycling infrastructure, the Cycling Network dataset, with its more comprehensive coverage of individual bikeway segments, was a better fit for the goals of this study.
 
-Data used in this paper was downloaded, cleaned and analyzed with the programming language R [@citeR]. Also with support of additional packages which will be talked about in the @sec-data-method.
+Data used in this paper was downloaded, cleaned and analyzed with the programming language R [@citeR]. Also with support of additional packages which will be mentioned later in the @sec-data-method.
 
 ## Measurement
 
 The 'Cycling Network' dataset from Open Data Toronto tracks various aspects of Toronto's cycling infrastructure, such as installation dates, upgrades, street names, and the type of infrastructure (e.g., sharrows, multi-use trails). Each entry represents a segment of the cycling network, where real-world phenomena, such as the construction or upgrading of cycling paths, are documented. For example, when a cycling path is installed or upgraded, the responsible authorities collect information such as the installation year (e.g., 2001) and any subsequent upgrades (e.g., 2021). This data is then digitized into structured entries in the dataset.
 
 To go from a physical event (e.g., the installation of a bike lane) to a dataset entry, detailed records are maintained by the city's transportation department. These records are geospatially coded (column geometry in this dataset), allowing each cycling path to be mapped precisely in relation to other city infrastructure. Thus, the phenomena of constructing or updating a bike lane becomes an entry with attributes such as the street name, road class, and installation history. This allows researchers to analyze trends in cycling infrastructure and its expansion over time.
+
+### Variables
+
+As mentioend above, the dataset contains several key variables that were used in this analysis:
+
+#### Installation Year
+
+The Installation Year records the year in which a particular bikeway segment was first constructed or made available for use. This variable is essential for conducting a temporal trend analysis, allowing the study to track the growth and expansion of the cycling network over time.
+
+#### Upgrade Year
+
+The Upgrade Year indicates when an existing bikeway segment was upgraded or improved. Upgrades typically involve safety enhancements, such as the installation of protective barriers, widening of lanes, or changes from painted lanes to physically separated lanes. This variable is critical for assessing not just the expansion but also the quality improvements made to Toronto’s cycling infrastructure over time. Tracking upgrades helps to understand whether the city's focus has shifted from merely adding new bikeways to improving the usability and safety of existing ones, especially in high-traffic or critical areas.
+
+#### Bikeway Type
+
+The Bikeway Type categorizes the cycling infrastructure into different types, including dedicated bike lanes, multi-use trails, and shared roadways, etc. Each type of bikeway offers varying levels of protection and comfort to cyclists. This variable was not directly used in the study, but forming another crucial variable: Comfort Level.
+
+#### Comfort Level
+Each bikeway is assigned a comfort level—high, moderate, or low—based according to the recorded Bikeway Type. These classification are self-defined, reling on factors such as physical separation from traffic and lane width of each Bikeway Type, detail can be found in @sec-app-comfort. This variable is central to understanding the usability of the infrastructure.
+
+#### Geospatial Coordinates
+Latitude and longitude data are included to map the bikeways and assess their spatial distribution.
 
 ## Method {#sec-data-method}
 
@@ -80,7 +105,7 @@ data_geometry <- data %>%
 
 # Display the simplified geometry data
 head(data_geometry) %>%
-  kable("latex", booktabs = TRUE, col.names = c("Simplified Geometry")) %>%
+  kable("latex", booktabs = TRUE, col.names = c("Geometry")) %>%
   column_spec(1, width = "40em")  # Adjust the width as needed
 
 ```
@@ -248,7 +273,7 @@ head(final_lane_data) %>%
 
 ```
 
-Finally, the fourth cleaning process involved classifying cycling lanes based on the type of infrastructure. Data from the 'INFRA_HIGHORDER' and 'INFRA_LOWORDER' columns was cleaned, and missing values were removed. The lanes were classified into three comfort levels: High Comfort, Moderate Comfort, and Low Comfort, depending on whether the infrastructure was protected or involved bike lanes. The classification, along with year data for installation and upgrades, was saved for analysis on the types of cycling lanes and their comfort levels. @tbl-clean-comfort shows how it looks like.
+Finally, the fourth cleaning process involved classifying cycling lanes based on the type of infrastructure. Data from the 'INFRA_HIGHORDER' and 'INFRA_LOWORDER' columns was cleaned, and missing values were removed. The lanes were classified into three comfort levels: High Comfort, Moderate Comfort, and Low Comfort, depending on their Bikeway Type data, detail of this classification can be found in @sec-app-comfort. The classification, along with year data for installation and upgrades, was saved for analysis on the types of cycling lanes and their comfort levels. @tbl-clean-comfort shows how it looks like.
 
 # Results {#sec-res}
 
@@ -634,7 +659,46 @@ Next steps should include focusing on identifying areas with fewer bike lanes an
 
 # Appendix {#sec-app}
 
+## Comfort Levels Classification {#sec-app-comfort}
 
+### Data
+
+```{r}
+#| echo: false
+#| eval: true
+#| label: tbl-comfort
+#| tbl-cap: "INFRA_HIGHORDER and INFRA_LOWORDER Columns from Raw Data"
+#| warning: false
+
+# Load the dataset
+data <- read_csv(here("data", "raw_data", "raw_data.csv"))
+
+comfort_data <- data %>%
+  select(INFRA_HIGHORDER, INFRA_LOWORDER)
+
+head(comfort_data) %>%
+  kable("latex", booktabs = TRUE, col.names = c("INFRA_HIGHORDER", "INFRA_LOWORDER"))
+
+```
+
+The classification relies on the infrastructure types defined in two key columns: INFRA_HIGHORDER and INFRA_LOWORDER, shown in @tbl-comfort. As the author explained on the original dataset page [@citeCyclingNetwork]: "'INFRA-HIGH' refers to the highest classified cycling infrastructure type installed on this segment. 'INFRA-LOW' refers to the lowest classified cycling infrastructure type. The hierarchy is based on the quality and comfort of the bikeway type, with routes that are shared with vehicles as the lowest comfort, and the greater the separation / dedicated space, the higher the comfort and classification."
+
+Both columns are crucial because they give complementary information about the physical features of the bikeway. By selecting these columns and ensuring that no missing values remain, the dataset is prepared for classification.
+
+### Logic
+
+The comfort levels are defined using a custom classification scheme based on the infrastructure types. The classification assigns a comfort level to each bikeway segment depending on its physical characteristics and separation from traffic:
+
+#### High Comfort
+Segments with infrastructure types labeled as "Protected" or "Multi-Use." These bikeways generally have physical barriers separating cyclists from motor vehicles, such as fully separated bike lanes or paths shared with pedestrians but removed from vehicle traffic. This category offers the highest level of safety and comfort, making it appealing to a wide range of cyclists, including families and less experienced riders.
+
+#### Moderate Comfort
+Bikeways labeled as "Bike Lane" in either column are classified as "Moderate Comfort." These lanes are typically painted or designated lanes on the road but lack the full physical separation that would offer more safety. While these lanes provide cyclists with their own space, they are adjacent to motor vehicle traffic, which may make them less comfortable for some users.
+
+#### Low Comfort
+All other types of bikeways, not falling into the protected or designated bike lane categories, are classified as "Low Comfort." These may include shared roadways where cyclists must navigate mixed traffic, offering little or no physical protection from vehicles. These segments are considered the least comfortable and safest for cyclists, often deterring usage by more risk-averse cyclists.
+
+This classification method ensures that each bikeway segment is categorized into one of the three comfort levels based on its infrastructure type, enabling a detailed analysis of the usability of Toronto's cycling network.
 
 \newpage
 
