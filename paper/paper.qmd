@@ -1,12 +1,12 @@
 ---
-title: "My title"
-subtitle: "My subtitle"
+title: "Geospatial and Temporal Analysis of Toronto's Cycling Infrastructure"
+subtitle: "A Data-Driven Approach"
 author: 
   - Ziheng Zhong
 thanks: "Code and data are available at: https://github.com/iJustinn/Toronto_Cycling_Network"
 date: today
 date-format: long
-abstract: "My abstract"
+abstract: "This paper explores the development of Toronto's cycling infrastructure. Through a comprehensive analysis of installation dates, upgrades, and comfort levels of bike lanes, this study highlights the trends in cycling infrastructure expansion from 2001 to 2024. A significant focus is placed on the comfort levels of different types of lanes, offering insights into how the infrastructure meets the needs of cyclists. The spatial distribution of bike lanes is also analyzed, revealing discrepancies in access between downtown and suburban areas. The findings emphasize the need for continued investment in both the quality and expansion of cycling infrastructure to promote sustainable transportation in Toronto."
 format: pdf
 toc: true
 toc-depth: 3
@@ -39,11 +39,11 @@ install_and_load(package_list)
 
 # Introduction
 
-You can and should cross-reference sections and sub-sections. We use @citeR.
+Urban cycling has become an increasingly vital component of sustainable transportation strategies in many cities, including Toronto. As the city grows and urban congestion intensifies, promoting active transportation options such as cycling is essential for reducing emissions, improving public health, and enhancing mobility. Toronto's efforts to develop a comprehensive cycling infrastructure began in the early 2000s, resulting in a network of bike lanes, multi-use trails, and shared roadways designed to support cyclists across the city.
 
-The remainder of this paper is structured as follows. 
+This paper aims to analyze the trends in Toronto’s cycling infrastructure, focusing on the patterns of bikeway installations, upgrades, and the classification of bike lanes by comfort level. Using data from the 'Cycling Network' dataset provided by Open Data Toronto, which will be discussed in detail at @sec-data. The study covers the evolution of cycling infrastructure over the past two decades, highlighting both progress and challenges. Additionally, the geographic distribution of bike lanes across the city is examined to identify areas with potential for further development.
 
-
+The remainder of this paper is structured as follows: the data sources and methodologies are presented in @sec-data, followed by an analysis of the results in @sec-res, and a discussion of the findings in @sec-dis.
 
 # Data {#sec-data}
 
