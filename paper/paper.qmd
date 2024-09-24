@@ -81,7 +81,6 @@ data_geometry <- data %>%
 # Display the simplified geometry data
 head(data_geometry) %>%
   kable("latex", booktabs = TRUE, col.names = c("Simplified Geometry")) %>%
-  kable_styling(latex_options = c("hold_position")) %>%
   column_spec(1, width = "40em")  # Adjust the width as needed
 
 ```
@@ -255,8 +254,6 @@ Finally, the fourth cleaning process involved classifying cycling lanes based on
 
 ## Data Trend
 
-
-
 ```{r}
 #| label: fig-installed
 #| fig-cap: "Toronto Bikeways Installed by Year"
@@ -294,7 +291,9 @@ ggplot(installed_data, aes(x = INSTALLED, y = num_bikeways)) +
 
 ```
 
+@fig-installed consists of two panels depicting the number of bikeways installed in Toronto by year, alongside a trend analysis of the installation pattern over time. @fig-installed-1 displays the raw count of bikeways installed per year from 2001 to 2024. A significant spike is observed in 2001, with over 400 bikeways installed in that year alone. This likely reflects a major investment in cycling infrastructure at the time. Following 2001, the number of installations drops sharply and stabilizes at much lower levels in subsequent years, with occasional small peaks around 2007, 2011, and 2021.
 
+@fig-installed-2 adds a trend line to the same data, showing a gradual decline in the number of bikeways installed over time. The trend line, sloping downward, indicates that despite some fluctuations, the overall pattern is a decrease in annual bikeway installations. The early 2000s marked a high point for cycling infrastructure development, but after this surge, the rate of installation has steadily declined. This trend might reflect a shift in city planning priorities or the saturation of available spaces for bikeways in certain areas. The analysis highlights the need for renewed focus on expanding cycling infrastructure to sustain or increase the momentum of bike-friendly urban development.
 
 ```{r}
 #| label: fig-upgraded
@@ -333,19 +332,23 @@ ggplot(upgraded_data, aes(x = UPGRADED, y = num_lanes)) +
 
 ```
 
+@fig-upgraded illustrates the number of bikeways upgraded in Toronto from 2001 to 2023, with panel (a) showing the raw counts of upgrades and panel (b) visualizing the trend. @fig-upgraded-1 reveals that the most significant number of upgrades occurred in 2015, where nearly 100 bikeways were updated, marking a major peak. Outside of this spike, the number of annual upgrades remains relatively modest, typically fluctuating between 10 and 50 bikeways. Notable periods of increased upgrades are visible around 2012 and 2020, possibly reflecting concentrated efforts to modernize or expand existing cycling infrastructure in those years.
 
+In @fig-upgraded-2, the overall trend is slightly upward, as indicated by the red trend line. Despite the notable peaks and valleys, the trend line suggests that, on average, the number of bikeway upgrades has increased over the years. The spike in 2015 significantly affects the trend, but even excluding that, the gradual rise suggests that more consistent efforts have been made to maintain and improve Toronto’s cycling network. This trend aligns with broader urban planning strategies focused on making cities more accessible and environmentally friendly by supporting active transportation. The dips in recent years, particularly after 2020, might be influenced by resource reallocation or external factors, such as the global pandemic, which could have delayed infrastructure projects.
 
 ## Distributions
 
 ```{r}
-#| label: fig-comfort
+#| label: fig-comfort-one
 #| fig-cap: "Toronto Bikeway Comfort Level Distribution"
-#| fig-subcap: ["All levels", "Low Comfort", "Moderate Comfort", "High Comfort"]
+#| fig-subcap: ["Comfort Levels", "Low Comfort"]
 #| echo: false
 #| warning: false
 #| message: false
 #| layout-ncol: 2
-#| layout-nrow: 2
+#| layout-nrow: 1
+#| fig-width: 12
+#| fig-height: 7
 
 # Load the data
 lane_type_data <- read_csv(here("data", "analysis_data", "lane_type_data.csv"))
@@ -419,7 +422,24 @@ ggplot(low_comfort_data, aes(x = "", y = percentage, fill = Upgrade_Status)) +
         legend.title = element_text(size = 16),  # Increase legend title size
         legend.text = element_text(size = 14))  # Increase legend text size
 
+```
 
+@fig-comfort-one provides a breakdown of Toronto’s bikeway network by comfort level and upgrade status. @fig-comfort-one-1 shows the distribution of all bikeways based on comfort level, with the majority of bikeways classified as either Low Comfort (41.6%) or Moderate Comfort (41.1%), while High Comfort lanes constitute a smaller portion (17.3%). This indicates that while Toronto has invested in a significant number of bike lanes, most of them fall within lower comfort categories, suggesting that further improvements, particularly in upgrading existing lanes, are needed to promote safer and more comfortable cycling experiences.
+
+```{r}
+#| label: fig-comfort-two
+#| fig-cap: "Toronto Bikeway Comfort Level Distribution"
+#| fig-subcap: ["Moderate Comfort", "High Comfort"]
+#| echo: false
+#| warning: false
+#| message: false
+#| layout-ncol: 2
+#| layout-nrow: 1
+#| fig-width: 12
+#| fig-height: 7
+
+# Load the data
+lane_type_data <- read_csv(here("data", "analysis_data", "lane_type_data.csv"))
 
 # Filter data for 'Moderate Comfort' lanes and categorize as 'Upgraded' or 'Not Upgraded'
 moderate_comfort_data <- lane_type_data %>%
@@ -493,6 +513,7 @@ ggplot(high_comfort_data, aes(x = "", y = percentage, fill = Upgrade_Status)) +
 
 ```
 
+@fig-comfort-one-2, @fig-comfort-two-1, and @fig-comfort-two-2 offer a deeper look into the upgrade status for each comfort level. For Low Comfort lanes, only 22.69% have been upgraded, while 77.31% remain in their original state. Similarly, for Moderate Comfort bikeways, 23.38% have been upgraded, leaving 76.62% untouched. Interestingly, High Comfort lanes have the lowest proportion of upgrades, with only 18.76% improved, despite representing the most comfortable and potentially most desirable biking infrastructure. These trends highlight a potential gap in Toronto's focus on maintaining and upgrading its most comfortable and accessible cycling lanes, suggesting a need for more targeted investments in high-comfort bikeways to encourage broader use of cycling for transportation.
 
 ## Maps
 
