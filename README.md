@@ -4,7 +4,7 @@ This study examines the evolution of Toronto’s cycling infrastructure, analyzi
 
 ## Paper Overview
 
-This paper tlized data from [Open Data Toronto](https://open.toronto.ca/). This data repository provides comprehensive information on Toronto’s cycling infrastructure, including details on installation dates, types of lanes, and upgrades. As a key source for urban planning and public engagement, Open Data Toronto offers open access to critical datasets that are essential for analyzing the development and spatial distribution of the city’s bike lanes. The detailed analysis was conducted using `R` programming and is presented as a final research paper in `PDF` format.
+This paper tlized data from [Open Data Toronto](https://open.toronto.ca/). This data repository provides comprehensive information on [Toronto’s cycling infrastructure](https://open.toronto.ca/dataset/cycling-network/), including details on installation dates, types of lanes, and upgrades. As a key source for urban planning and public engagement, Open Data Toronto offers open access to critical datasets that are essential for analyzing the development and spatial distribution of the city’s bike lanes. The detailed analysis was conducted using `R` programming and is presented as a final research paper in `PDF` format.
 
 ## File Structure
 
