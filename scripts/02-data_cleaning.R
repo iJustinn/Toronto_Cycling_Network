@@ -135,6 +135,7 @@ data <- read_csv("data/raw_data/raw_data.csv")
 lane_type_data <- data %>%
   select(INFRA_HIGHORDER, INFRA_LOWORDER, INSTALLED, UPGRADED) %>%   # Select relevant columns including year data
   filter(!is.na(INFRA_HIGHORDER) & !is.na(INFRA_LOWORDER)) %>%       # Remove rows with NA values
+  filter((INSTALLED >= 1800 | is.na(INSTALLED)) & (UPGRADED >= 1800 | is.na(UPGRADED))) %>%  # Remove rows where INSTALLED or UPGRADED equals 1
   mutate(
     Comfort_Level = case_when(                                       # Combine both columns into one classification
       str_detect(INFRA_HIGHORDER, "Protected|Multi-Use") | str_detect(INFRA_LOWORDER, "Protected|Multi-Use") ~ "High Comfort",
@@ -149,10 +150,5 @@ write_csv(
   x = lane_type_data,
   file = "data/analysis_data/lane_type_data.csv"
 )
-
-
-
-
-
 
 
