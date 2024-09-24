@@ -1,0 +1,13 @@
+revise these for my paper:
+
+title: "Analyzing Toronto's Cycling Infrastructure: Geospatial and Temporal"
+subtitle: "A Data-Driven Approach"
+ChatGPT said:
+ChatGPT
+Here are the revised versions of your title and subtitle for your paper:
+
+Title: "Geospatial and Temporal Analysis of Toronto's Cycling Infrastructure"
+Subtitle: "A Data-Driven Perspective"
+
+This revision enhances clarity and flow while maintaining the technical focus. Let me know if you'd like further adjustments!
+
