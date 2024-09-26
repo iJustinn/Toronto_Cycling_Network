@@ -24,8 +24,8 @@ package <- show_package("cycling-network")
 resources <- list_package_resources("cycling-network")
 
 # choose .csv to download
-datastore_resources <- filter(resources, tolower(format) %in% c('csv'))
-raw_data <- filter(datastore_resources, row_number()==1) %>% get_resource()
+datastore_resources <- filter(resources, tolower(format) %in% c("csv"))
+raw_data <- filter(datastore_resources, row_number() == 1) %>% get_resource()
 
 
 
@@ -34,5 +34,3 @@ write_csv(
   x = raw_data,
   file = "data/raw_data/raw_data.csv"
 )
-
-
