@@ -1,10 +1,11 @@
 #### Preamble ####
-# Purpose: Cleans the raw plane data recorded by two observers
-# Author: Justin [...UPDATE THIS...]
-# Date: 21 September 2024
-# Contact: justin@example.com [...UPDATE THIS...]
+# Purpose: Cleans and processes cycling network data for analysis, including extracting coordinates, summarizing upgrades and installations, and classifying lane types by comfort level.
+# Author: Ziheng Zhong
+# Date: 23 September 2024
+# Contact: ziheng.zhong@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: Dataset with geometry field containing valid JSON-like data
+# Pre-requisites: NA
+# Any other information needed: NA
 
 
 
