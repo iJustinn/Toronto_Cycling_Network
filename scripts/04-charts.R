@@ -27,6 +27,9 @@ toronto_bbox <- c(-79.6303856025883, 43.5822069220627, -79.1180336515019, 43.855
 # Fetch map data from OpenStreetMap (OSM)
 toronto_map <- opq(bbox = toronto_bbox) %>%
   add_osm_feature(key = "highway", value = "primary") %>%
+  add_osm_feature(key = 'highway', value = 'secondary') %>%
+  add_osm_feature(key = 'highway', value = 'tertiary') %>%
+  add_osm_feature(key = 'highway', value = 'residential') %>%
   osmdata_sf()
 
 # Convert map data to Simple Features (sf) objects
