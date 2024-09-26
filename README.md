@@ -26,4 +26,4 @@ The files for this research are organized in the following ways:
 
 ## Large Language Model (LLM) usage statement
 
-This project utilized ChatGPT to assist during the research, development, and writing processes. A record of usage can be found in the `other/llm` folder of this repository.
+This project utilized ChatGPT to assist during the research, development, and writing processes. All records of usage can be found in the `other/llm` folder of this repository.
