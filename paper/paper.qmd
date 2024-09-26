@@ -286,7 +286,7 @@ Finally, the fourth cleaning process involved classifying cycling lanes based on
 ```{r}
 #| label: fig-installed
 #| fig-cap: "Toronto Bikeways Installed by Year"
-#| fig-subcap: ["Number", "Trend"]
+#| fig-subcap: ["Number of bikeways installed", "Trend of bikeway installations"]
 #| echo: false
 #| warning: false
 #| message: false
@@ -327,7 +327,7 @@ ggplot(installed_data, aes(x = INSTALLED, y = num_bikeways)) +
 ```{r}
 #| label: fig-upgraded
 #| fig-cap: "Toronto Bikeways Upgraded by Year"
-#| fig-subcap: ["Number", "Trend"]
+#| fig-subcap: ["Number of bikeways upgraded", "Trend of bikeway upgrads"]
 #| echo: false
 #| warning: false
 #| message: false
@@ -548,7 +548,7 @@ ggplot(high_comfort_data, aes(x = "", y = percentage, fill = Upgrade_Status)) +
 
 ```{r}
 #| label: fig-map
-#| fig-cap: "Map of Bike Lanes Locations in Toronto"
+#| fig-cap: "Map of Toronto Bikeway Locations"
 #| echo: false
 #| warning: false
 #| message: false
@@ -564,6 +564,9 @@ toronto_bbox <- c(-79.6303856025883, 43.5822069220627, -79.1180336515019, 43.855
 # Fetch map data from OpenStreetMap (OSM)
 toronto_map <- opq(bbox = toronto_bbox) %>%
   add_osm_feature(key = 'highway', value = 'primary') %>%
+  add_osm_feature(key = 'highway', value = 'secondary') %>%
+  add_osm_feature(key = 'highway', value = 'tertiary') %>%
+  add_osm_feature(key = 'highway', value = 'residential') %>%
   osmdata_sf()
 
 # Convert map data to Simple Features (sf) objects
@@ -583,7 +586,10 @@ ggplot() +
     panel.grid.major = element_blank(),  # Remove major grid lines
     panel.grid.minor = element_blank(),  # Remove minor grid lines
     axis.text.x = element_text(angle = 45, hjust = 1)
-  )
+  ) +
+  annotate("text", x = -79.12, y = 43.585, label = "Locations of bikeways in Toronto overlaid on a street map\
+           including primary, secondary, tertiary, and residential roads.", 
+           size = 5, hjust = 1, vjust = 0, color = "darkgrey")  # Caption at bottom right
 
 ```
 
