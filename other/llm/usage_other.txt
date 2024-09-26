@@ -1,0 +1,775 @@
+update the 'Purpose' (one sentence) in the section 'Preamble' section in the following code:
+#### Preamble ####
+# Purpose: Simulates... [...UPDATE THIS...]
+# Author: Ziheng Zhong
+# Date: 23 September 2024
+# Contact: ziheng.zhong@mail.utoronto.ca
+# License: MIT
+# Pre-requisites: NA
+# Any other information needed: NA
+
+
+
+#### Workspace setup ####
+library(tidyverse)
+library(dplyr)
+
+
+
+#### Simulate data ####
+# Set seed for reproducibility
+set.seed(304)
+
+# Create a simulated dataset for Toronto Cycling Network
+toronto_cycling_network <- data.frame(
+  route_id = 1:100,  # Unique identifier for each cycling route
+  route_name = paste("Route", 1:100),  # Route name
+  length_km = round(rgamma(100, shape = 2, scale = 2), 2),  # Gamma distribution for route length (right-skewed)
+  surface_type = sample(c("Asphalt", "Concrete", "Gravel"), 100, replace = TRUE, prob = c(0.6, 0.3, 0.1)),  # Asphalt is more common
+  ward = sample(1:25, 100, replace = TRUE, prob = dpois(1:25, lambda = 12) + 0.01),  # Poisson distribution for ward, centered around 12
+  year_installed = sample(1990:2023, 100, replace = TRUE, prob = dnorm(1990:2023, mean = 2010, sd = 8)),  # More routes in recent years
+  maintenance_status = sample(c("Good", "Fair", "Poor"), 100, replace = TRUE, prob = c(0.5, 0.3, 0.2)),  # 50% chance of "Good" maintenance
+  avg_daily_riders = round(rlnorm(100, meanlog = log(300), sdlog = 0.4))  # Log-normal distribution for daily riders
+)
+
+# Check the dataset
+head(toronto_cycling_network)
+
+
+2/2
+
+ChatGPT said:
+ChatGPT
+Here is the updated 'Purpose' section in your 'Preamble':
+
+r
+Copy code
+#### Preamble ####
+# Purpose: Simulates a dataset representing Toronto's cycling network with route attributes such as length, surface type, and average daily riders.
+# Author: Ziheng Zhong
+# Date: 23 September 2024
+# Contact: ziheng.zhong@mail.utoronto.ca
+# License: MIT
+# Pre-requisites: NA
+# Any other information needed: NA
+Let me know if you need further adjustments!
+
+
+
+
+
+
+You said:
+update the 'Purpose' (one sentence) in the section 'Preamble' section in the following code:
+#### Preamble ####
+# Purpose: Downloads and saves the data from [...UPDATE THIS...]
+# Author: Rohan Alexander [...UPDATE THIS...]
+# Date: 11 February 2023 [...UPDATE THIS...]
+# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# License: MIT
+# Pre-requisites: [...UPDATE THIS...]
+# Any other information needed? [...UPDATE THIS...]
+
+
+
+#### Workspace setup ####
+library(opendatatoronto)
+library(tidyverse)
+library(dplyr)
+
+
+
+#### Download raw data ####
+# get package
+package <- show_package("cycling-network")
+
+# get all resources for this package
+resources <- list_package_resources("cycling-network")
+
+# choose .csv to download
+datastore_resources <- filter(resources, tolower(format) %in% c('csv'))
+raw_data <- filter(datastore_resources, row_number()==1) %>% get_resource()
+
+
+
+#### save data ####
+write_csv(
+  x = raw_data,
+  file = "data/raw_data/raw_data.csv"
+)
+
+ChatGPT said:
+ChatGPT
+Here is the updated 'Preamble' section based on your request:
+
+r
+Copy code
+#### Preamble ####
+# Purpose: Downloads and saves the data from the Toronto Open Data cycling network package.
+# Author: Ziheng Zhong
+# Date: 26 September 2024
+# Contact: ziheng.zhong@mail.utoronto.ca
+# License: MIT
+# Pre-requisites: Access to the 'opendatatoronto' R package and an internet connection.
+# Any other information needed: NA
+Let me know if you need further modifications!
+
+
+
+
+
+
+You said:
+update the 'Purpose' (one sentence) in the section 'Preamble' section in the following code:
+#### Preamble ####
+# Purpose:
+# Author: Ziheng Zhong
+# Date: 23 September 2024
+# Contact: ziheng.zhong@mail.utoronto.ca
+# License: MIT
+# Pre-requisites: NA
+# Any other information needed: NA
+
+
+
+#### Workspace setup ####
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(jsonlite)
+library(tidyverse)
+
+
+
+#### Clean data 1 ####
+# Map data
+# Load the dataset
+data <- read_csv("data/raw_data/raw_data.csv")
+
+# Function to extract and clean coordinates from geometry
+extract_coordinates <- function(geo) {
+  if (!is.na(geo)) {
+    # Clean and prepare the JSON-like structure
+    geo_clean <- gsub("'", "\"", geo)
+    
+    # Convert to JSON and extract coordinates
+    json_data <- tryCatch({
+      fromJSON(geo_clean)
+    }, error = function(e) {
+      return(NULL)
+    })
+    
+    if (!is.null(json_data) && !is.null(json_data$coordinates)) {
+      # Flatten coordinates (assuming it's a nested list)
+      coords <- unlist(json_data$coordinates, recursive = TRUE)
+      
+      # Separate longitude (starting with -79) and latitude (starting with 43)
+      longitude <- coords[grepl("^-79", coords)]
+      latitude <- coords[grepl("^43", coords)]
+      
+      # Ensure we have pairs
+      if (length(longitude) == length(latitude)) {
+        coords_matrix <- cbind(longitude, latitude)
+        return(as.data.frame(coords_matrix))
+      }
+    }
+  }
+  
+  return(NULL)  # Return NULL for invalid or empty data
+}
+
+# Apply the function to extract all coordinates from the 'geometry' column
+all_coordinates <- lapply(data$geometry, extract_coordinates)
+
+# Filter out any NULL values from the list of extracted coordinates
+valid_coordinates <- all_coordinates[!sapply(all_coordinates, is.null)]
+
+# Create a unique ID for each geometry feature (so we know which points belong together)
+data$id <- seq_len(nrow(data))
+
+# Combine all valid coordinates into a single dataframe with IDs
+coordinates_data <- do.call(rbind, Map(function(coords, id) {
+  coords$id <- id  # Add ID to each set of coordinates
+  return(coords)
+}, valid_coordinates, data$id[!sapply(all_coordinates, is.null)]))
+
+# Set column names for the longitude and latitude
+colnames(coordinates_data) <- c("longitude", "latitude", "id")
+
+# Ensure no NA values exist in longitude and latitude
+coordinates_data <- coordinates_data %>%
+  filter(!is.na(longitude), !is.na(latitude))
+
+# Save data
+write_csv(
+  x = coordinates_data,
+  file = "data/analysis_data/coordinates_data.csv"
+)
+
+
+
+#### Clean data 2 ####
+# Upgrade data
+# Load the dataset
+data <- read_csv("data/raw_data/raw_data.csv")
+
+# Select and clean the 'UPGRADED' column, then summarize by year
+upgraded_data <- data %>%
+  select(UPGRADED) %>%                     # Keep only the 'UPGRADED' column
+  filter(!is.na(UPGRADED) & UPGRADED > 1800) %>%  # Remove NA and invalid years
+  mutate(UPGRADED = as.numeric(UPGRADED)) %>% # Convert 'UPGRADED' to numeric
+  group_by(UPGRADED) %>%                    # Group by the upgrade year
+  summarise(num_lanes = n())                # Count the number of upgrades per year
+
+# Save the summarized data
+write_csv(
+  x = upgraded_data,
+  file = "data/analysis_data/upgraded_data.csv"
+)
+
+
+
+#### Clean data 3 ####
+# Installed data
+# Load the dataset
+data <- read_csv("data/raw_data/raw_data.csv")
+
+# Select and clean the 'INSTALLED' column, then summarize by year
+installed_data <- data %>%
+  select(INSTALLED) %>%                        # Keep only the 'INSTALLED' column
+  filter(!is.na(INSTALLED) & INSTALLED > 1800) %>%  # Remove NA and invalid years
+  mutate(INSTALLED = as.numeric(INSTALLED)) %>%     # Convert 'INSTALLED' to numeric
+  group_by(INSTALLED) %>%                          # Group by the installation year
+  summarise(num_bikeways = n())                    # Count the number of bikeways per year
+
+# Save the summarized data
+write_csv(
+  x = installed_data,
+  file = "data/analysis_data/installed_data.csv"
+)
+
+
+
+#### Clean data 4 ####
+# Lane Type data
+# Load the dataset
+data <- read_csv("data/raw_data/raw_data.csv")
+
+# Clean and classify the 'INFRA-HIGHORDER' and 'INFRA-LOWORDER' columns, and retain year data
+lane_type_data <- data %>%
+  select(INFRA_HIGHORDER, INFRA_LOWORDER, INSTALLED, UPGRADED) %>%   # Select relevant columns including year data
+  filter(!is.na(INFRA_HIGHORDER) & !is.na(INFRA_LOWORDER)) %>%       # Remove rows with NA values
+  filter((INSTALLED >= 1800 | is.na(INSTALLED)) & (UPGRADED >= 1800 | is.na(UPGRADED))) %>%  # Remove rows where INSTALLED or UPGRADED equals 1
+  mutate(
+    Comfort_Level = case_when(                                       # Combine both columns into one classification
+      str_detect(INFRA_HIGHORDER, "Protected|Multi-Use") | str_detect(INFRA_LOWORDER, "Protected|Multi-Use") ~ "High Comfort",
+      str_detect(INFRA_HIGHORDER, "Bike Lane") | str_detect(INFRA_LOWORDER, "Bike Lane") ~ "Moderate Comfort",
+      TRUE ~ "Low Comfort"
+    )
+  ) %>%
+  select(INSTALLED, UPGRADED, Comfort_Level)                         # Keep year data and the final classification column
+
+# Save the cleaned and classified data
+write_csv(
+  x = lane_type_data,
+  file = "data/analysis_data/lane_type_data.csv"
+)
+
+ChatGPT said:
+ChatGPT
+Here is the updated 'Preamble' section based on your request:
+
+r
+Copy code
+#### Preamble ####
+# Purpose: Cleans and processes cycling network data for analysis, including extracting coordinates, summarizing upgrades and installations, and classifying lane types by comfort level.
+# Author: Ziheng Zhong
+# Date: 23 September 2024
+# Contact: ziheng.zhong@mail.utoronto.ca
+# License: MIT
+# Pre-requisites: NA
+# Any other information needed: NA
+Let me know if you need further changes!
+
+
+
+
+
+
+You said:
+update the 'Purpose' (one sentence) in the section 'Preamble' section in the following code:
+
+#### Preamble ####
+# Purpose: Tests... [...UPDATE THIS...]
+# Author: Ziheng Zhong
+# Date: 23 September 2024
+# Contact: ziheng.zhong@mail.utoronto.ca
+# License: MIT
+# Pre-requisites: NA
+# Any other information needed: NA
+
+
+
+#### Workspace setup ####
+library(here)
+library(dplyr)
+library(testthat)
+library(lubridate)
+library(geojsonio)
+library(tidyverse)
+
+
+
+#### Test Raw Data ####
+# Test suite
+test_that("Test for missing values", {
+  data <- read_csv(here("data", "raw_data", "raw_data.csv"))
+  missing_info <- sapply(data, function(x) sum(is.na(x)))
+  missing_cols <- names(missing_info[missing_info > 0])
+  expect_true(length(missing_cols) > 0, info = "Columns with missing values exist.")
+  print(missing_cols)
+})
+
+test_that("Test for valid data types", {
+  # Check if INSTALLED, UPGRADED, OBJECTID are numeric
+  data <- read_csv(here("data", "raw_data", "raw_data.csv"))
+  numeric_check <- all(sapply(data[c('INSTALLED', 'UPGRADED', 'OBJECTID')], is.numeric))
+  expect_true(numeric_check, info = "INSTALLED, UPGRADED, OBJECTID should be numeric.")
+  
+  # Check if LAST_EDIT_DATE has a valid date format (using ymd_hms for ISO 8601)
+  date_check <- all(!is.na(ymd_hms(data$LAST_EDIT_DATE)))
+  expect_true(date_check, info = "LAST_EDIT_DATE should be in valid date format.")
+})
+
+test_that("Test for valid ranges of years", {
+  data <- read_csv(here("data", "raw_data", "raw_data.csv"))
+  current_year <- year(Sys.Date())
+  
+  # Check INSTALLED range
+  installed_valid <- all(data$INSTALLED >= 1900 & data$INSTALLED <= current_year, na.rm = TRUE)
+  expect_true(installed_valid, info = "INSTALLED year should be between 1900 and the current year or NA.")
+  
+  # Check UPGRADED range, allow NA values
+  upgraded_valid <- all(is.na(data$UPGRADED) | (data$UPGRADED >= 1900 & data$UPGRADED <= current_year | data$UPGRADED == 1)) #there is a invalid UPGRADED data 1
+  expect_true(upgraded_valid, info = "UPGRADED year should be between 1900 and the current year or NA.")
+})
+
+test_that("Test for uniqueness of X_id and SEGMENT_ID", {
+  data <- read_csv(here("data", "raw_data", "raw_data.csv"))
+  # X_id uniqueness
+  x_id_unique <- n_distinct(data$X_id) == nrow(data)
+  expect_true(x_id_unique, info = "X_id should be unique.")
+  
+  # SEGMENT_ID uniqueness
+  segment_id_unique <- n_distinct(data$SEGMENT_ID) == nrow(data)
+  expect_true(segment_id_unique, info = "SEGMENT_ID should be unique.")
+})
+
+
+
+#### Test Analysis Data ####
+# Test Lane Type Data
+test_that("Test lane_type_data for missing values, valid data types, and ranges", {
+  data <- read_csv(here("data", "analysis_data", "lane_type_data.csv"))
+  current_year <- year(Sys.Date())
+  
+  # Test for missing values
+  missing_info <- sapply(data, function(x) sum(is.na(x)))
+  missing_cols <- names(missing_info[missing_info > 0])
+  expect_true(length(missing_cols) > 0, info = "Columns with missing values exist.")
+  print(missing_cols)
+  
+  # Test for valid numeric types
+  numeric_check <- all(sapply(data[c('INSTALLED', 'UPGRADED')], is.numeric))
+  expect_true(numeric_check, info = "INSTALLED and UPGRADED should be numeric.")
+  
+  # Test for valid year ranges
+  installed_valid <- all(data$INSTALLED >= 1900 & data$INSTALLED <= current_year, na.rm = TRUE)
+  expect_true(installed_valid, info = "INSTALLED year should be between 1900 and the current year or NA.")
+  
+  upgraded_valid <- all(is.na(data$UPGRADED) | (data$UPGRADED >= 1900 & data$UPGRADED <= current_year))
+  expect_true(upgraded_valid, info = "UPGRADED year should be between 1900 and the current year or NA.")
+})
+
+
+
+# Test Installed Data
+test_that("Test installed_data for valid ranges and data types", {
+  data <- read_csv(here("data", "analysis_data", "installed_data.csv"))
+  current_year <- year(Sys.Date())
+  
+  # Test for valid numeric types
+  numeric_check <- all(sapply(data[c('INSTALLED', 'num_bikeways')], is.numeric))
+  expect_true(numeric_check, info = "INSTALLED and num_bikeways should be numeric.")
+  
+  # Test for valid year ranges
+  installed_valid <- all(data$INSTALLED >= 1900 & data$INSTALLED <= current_year)
+  expect_true(installed_valid, info = "INSTALLED year should be between 1900 and the current year.")
+})
+
+
+
+# Test Upgraded Data
+test_that("Test upgraded_data for valid ranges and data types", {
+  data <- read_csv(here("data", "analysis_data", "upgraded_data.csv"))
+  current_year <- year(Sys.Date())
+  
+  # Test for valid numeric types
+  numeric_check <- all(sapply(data[c('UPGRADED', 'num_lanes')], is.numeric))
+  expect_true(numeric_check, info = "UPGRADED and num_lanes should be numeric.")
+  
+  # Test for valid year ranges
+  upgraded_valid <- all(data$UPGRADED >= 1900 & data$UPGRADED <= current_year)
+  expect_true(upgraded_valid, info = "UPGRADED year should be between 1900 and the current year.")
+})
+
+
+
+# Test Coordinates Data
+test_that("Test coordinates_data for valid longitude/latitude and id uniqueness", {
+  data <- read_csv(here("data", "analysis_data", "coordinates_data.csv"))
+  
+  # Test for valid longitude and latitude ranges
+  valid_longitude <- all(data$longitude >= -180 & data$longitude <= 180)
+  valid_latitude <- all(data$latitude >= -90 & data$latitude <= 90)
+  expect_true(valid_longitude, info = "Longitude should be between -180 and 180.")
+  expect_true(valid_latitude, info = "Latitude should be between -90 and 90.")
+})
+
+ChatGPT said:
+ChatGPT
+Here is the updated 'Preamble' section based on your request:
+
+r
+Copy code
+#### Preamble ####
+# Purpose: Tests the integrity of raw and processed cycling network data, including checks for missing values, valid data types, and year ranges.
+# Author: Ziheng Zhong
+# Date: 23 September 2024
+# Contact: ziheng.zhong@mail.utoronto.ca
+# License: MIT
+# Pre-requisites: NA
+# Any other information needed: NA
+Let me know if you need further adjustments!
+
+
+
+
+
+
+You said:
+update the 'Purpose' (one sentence) in the section 'Preamble' section in the following code:
+#### Preamble ####
+# Purpose: Models... [...UPDATE THIS...]
+# Author: Ziheng Zhong
+# Date: 23 September 2024
+# Contact: ziheng.zhong@mail.utoronto.ca
+# License: MIT
+# Pre-requisites: NA
+# Any other information needed: NA
+
+
+#### Workspace setup ####
+library(sf)
+library(readr)
+library(ggplot2)
+library(osmdata)
+
+
+
+#### Chart 1 ####
+# Map
+# Load the data
+coordinates_data <- read_csv("data/analysis_data/coordinates_data.csv")
+
+# Get bounding box for Toronto (approximate limits for Toronto)
+toronto_bbox <- c(-79.6303856025883, 43.5822069220627, -79.1180336515019, 43.8554571861712)
+
+# Fetch map data from OpenStreetMap (OSM)
+toronto_map <- opq(bbox = toronto_bbox) %>%
+  add_osm_feature(key = 'highway', value = 'primary') %>%
+  osmdata_sf()
+
+# Convert map data to Simple Features (sf) objects
+streets <- toronto_map$osm_lines
+
+# Plot the map with bike lanes data
+ggplot() +
+  geom_sf(data = streets, color = "gray", size = 0.3, alpha = 0.6) +  # OSM street map layer
+  geom_point(data = coordinates_data, aes(x = longitude, y = latitude), 
+             size = 0.1, color = "black") +  # Bike lanes points
+  labs(title = "Map of Bike Lanes Locations in Toronto", 
+       x = "Longitude", y = "Latitude") +
+  coord_sf(xlim = c(-79.6303856025883, -79.1180336515019), 
+           ylim = c(43.5822069220627, 43.8554571861712), expand = FALSE) +
+  theme_minimal() +
+  theme(
+    panel.background = element_blank(),  # Remove panel background
+    panel.grid.major = element_blank(),  # Remove major grid lines
+    panel.grid.minor = element_blank(),  # Remove minor grid lines
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+# Save Chart
+ggsave("other/charts/map.jpg")
+
+
+
+#### Chart 2 ####
+# Upgraded
+# Load the data
+upgraded_data <- read_csv("data/analysis_data/upgraded_data.csv")
+
+# Generate the bar chart for "Number of Bikeways Upgraded by Year"
+ggplot(upgraded_data, aes(x = UPGRADED, y = num_lanes)) +
+  geom_bar(stat = "identity", fill = "darkgrey") +  # Bar chart
+  labs(title = "Number of Bikeways Upgraded by Year",
+       x = "Year of Upgrade",
+       y = "Number of Bikeways") +
+  scale_x_continuous(breaks = seq(min(upgraded_data$UPGRADED), max(upgraded_data$UPGRADED), by = 1)) +  # Display all years
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotates x-axis labels for readability
+
+# Save Chart
+ggsave("other/charts/upgrade_bar.jpg")
+
+# Generate the line chart with trend line for "Number of Bikeways Upgraded by Year"
+ggplot(upgraded_data, aes(x = UPGRADED, y = num_lanes)) +
+  geom_line(aes(group = 1), color = "black", size = 1) +  # Adds a line connecting each point
+  geom_point(color = "black", size = 2) +  # Adds points at each data value
+  geom_smooth(method = "lm", color = "red", se = FALSE) +  # Adds a linear trend line
+  labs(title = "Trend of Bikeways Upgraded by Year",
+       x = "Year of Upgrade",
+       y = "Number of Bikeways") +
+  scale_x_continuous(breaks = seq(min(upgraded_data$UPGRADED), max(upgraded_data$UPGRADED), by = 1)) +  # Display all years
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotates x-axis labels for readability
+
+# Save the line chart
+ggsave("other/charts/upgrade_line.jpg")
+
+
+
+#### Chart 3 ####
+# Installed
+# Load the data
+installed_data <- read_csv("data/analysis_data/installed_data.csv")
+
+# Generate the bar chart for "Number of Bikeways Installed by Year"
+ggplot(installed_data, aes(x = INSTALLED, y = num_bikeways)) +
+  geom_bar(stat = "identity", fill = "darkgrey") +  # Bar chart
+  labs(title = "Number of Bikeways Installed by Year",
+       x = "Year of Installation",
+       y = "Number of Bikeways") +
+  scale_x_continuous(breaks = seq(min(installed_data$INSTALLED), max(installed_data$INSTALLED), by = 1)) +  # Display all years
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotates x-axis labels for readability
+
+# Save Chart
+ggsave("other/charts/installed_bar.jpg")
+
+# Generate the line chart with trend line for "Number of Bikeways Installed by Year"
+ggplot(installed_data, aes(x = INSTALLED, y = num_bikeways)) +
+  geom_line(aes(group = 1), color = "black", size = 1) +  # Adds a line connecting each point
+  geom_point(color = "black", size = 2) +  # Adds points at each data value
+  geom_smooth(method = "lm", color = "red", se = FALSE) +  # Adds a linear trend line
+  labs(title = "Trend of Bikeways Installed by Year",
+       x = "Year of Installation",
+       y = "Number of Bikeways") +
+  scale_x_continuous(breaks = seq(min(installed_data$INSTALLED), max(installed_data$INSTALLED), by = 1)) +  # Display all years
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotates x-axis labels for readability
+
+# Save the line chart
+ggsave("other/charts/installed_line.jpg")
+
+
+
+#### Chart 4 ####
+# Lane Type
+# Load the data
+lane_type_data <- read_csv("data/analysis_data/lane_type_data.csv")
+
+# Combine the 'INSTALLED' and 'UPGRADED' years into one column for better visualization
+lane_type_years <- lane_type_data %>%
+  pivot_longer(cols = c(INSTALLED, UPGRADED), names_to = "Year_Type", values_to = "Year") %>%
+  filter(!is.na(Year)) %>%  # Remove NA values in the 'Year' column
+  group_by(Comfort_Level) %>%
+  summarise(count = n())  # Count the occurrences of each Comfort Level
+
+# Calculate percentages
+lane_type_years <- lane_type_years %>%
+  mutate(percentage = round((count / sum(count)) * 100, 2))  # Add percentage column
+
+# Define a more contrasting Morandi-inspired color scheme
+contrasting_morandi_colors <- c(
+  "High Comfort" = "#B39B8E",   # Muted brownish-pink
+  "Moderate Comfort" = "#8A7967", # Stronger grey-brown
+  "Low Comfort" = "#6E7062"     # Dark muted gray-green
+)
+
+# Generate the pie chart with border lines and larger text/legend
+ggplot(lane_type_years, aes(x = "", y = percentage, fill = Comfort_Level)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +  # Add black border lines around pie sections
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = paste0(percentage, "%")), 
+            position = position_stack(vjust = 0.5), 
+            size = 6,   # Increase text size for percentage labels
+            fontface = "bold") +  # Make percentage text bold
+  scale_fill_manual(values = contrasting_morandi_colors) +  # Apply the more contrasting Morandi colors
+  labs(title = "Bikeway Comfort Level Distribution", fill = "Comfort Level") +
+  theme_void() +  # Remove axis, grid lines, and background
+  theme(legend.position = "right", 
+        legend.title = element_text(size = 16),  # Increase legend title size
+        legend.text = element_text(size = 14))  # Increase legend text size
+
+# Save the chart
+ggsave("other/charts/lane_type.jpg")
+
+
+
+#### Chart 5 ####
+# Upgraded of Low Comfort
+# Load the data
+lane_type_data <- read_csv("data/analysis_data/lane_type_data.csv")
+
+# Filter data for 'Low Comfort' lanes and categorize as 'Upgraded' or 'Not Upgraded'
+low_comfort_data <- lane_type_data %>%
+  filter(Comfort_Level == "Low Comfort") %>%
+  mutate(
+    Upgrade_Status = ifelse(is.na(UPGRADED), "Not Upgraded", "Upgraded")
+  ) %>%
+  group_by(Upgrade_Status) %>%
+  summarise(count = n())  # Count the occurrences of each category
+
+# Calculate percentages
+low_comfort_data <- low_comfort_data %>%
+  mutate(percentage = round((count / sum(count)) * 100, 2))  # Add percentage column
+
+# Define colors for 'Upgraded' and 'Not Upgraded' categories
+upgrade_colors_low <- c(
+  "Upgraded" = "#8A7967",  # Gray-brown for upgraded
+  "Not Upgraded" = "#B39B8E"  # Muted pinkish tone for not upgraded
+)
+
+# Generate the pie chart with borders and larger text/legend for Low Comfort lanes
+ggplot(low_comfort_data, aes(x = "", y = percentage, fill = Upgrade_Status)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +  # Add black border lines around pie sections
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = paste0(percentage, "%")), 
+            position = position_stack(vjust = 0.5), 
+            size = 6,   # Increase text size for percentage labels
+            fontface = "bold") +  # Make percentage text bold
+  scale_fill_manual(values = upgrade_colors_low) +  # Apply colors for Upgraded vs Not Upgraded
+  labs(title = "Distribution of Low Comfort Lanes: Upgraded vs Not Upgraded", fill = "Upgrade Status") +
+  theme_void() +  # Remove axis, grid lines, and background
+  theme(legend.position = "right", 
+        legend.title = element_text(size = 16),  # Increase legend title size
+        legend.text = element_text(size = 14))  # Increase legend text size
+
+# Save the chart
+ggsave("other/charts/low_comfort_upgrade_distribution.jpg")
+
+
+
+#### Chart 6 ####
+# Upgraded of Moderate Comfort
+# Load the data
+lane_type_data <- read_csv("data/analysis_data/lane_type_data.csv")
+
+# Filter data for 'Moderate Comfort' lanes and categorize as 'Upgraded' or 'Not Upgraded'
+moderate_comfort_data <- lane_type_data %>%
+  filter(Comfort_Level == "Moderate Comfort") %>%
+  mutate(
+    Upgrade_Status = ifelse(is.na(UPGRADED), "Not Upgraded", "Upgraded")
+  ) %>%
+  group_by(Upgrade_Status) %>%
+  summarise(count = n())  # Count the occurrences of each category
+
+# Calculate percentages
+moderate_comfort_data <- moderate_comfort_data %>%
+  mutate(percentage = round((count / sum(count)) * 100, 2))  # Add percentage column
+
+# Define colors for 'Upgraded' and 'Not Upgraded' categories
+upgrade_colors_moderate <- c(
+  "Upgraded" = "#8A7967",  # Gray-brown for upgraded
+  "Not Upgraded" = "#B39B8E"  # Muted pinkish tone for not upgraded
+)
+
+# Generate the pie chart for Moderate Comfort lanes
+ggplot(moderate_comfort_data, aes(x = "", y = percentage, fill = Upgrade_Status)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +  # Add black border lines around pie sections
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = paste0(percentage, "%")), 
+            position = position_stack(vjust = 0.5), 
+            size = 6,   # Increase text size for percentage labels
+            fontface = "bold") +  # Make percentage text bold
+  scale_fill_manual(values = upgrade_colors_moderate) +  # Apply colors for Upgraded vs Not Upgraded
+  labs(title = "Distribution of Moderate Comfort Lanes: Upgraded vs Not Upgraded", fill = "Upgrade Status") +
+  theme_void() +  # Remove axis, grid lines, and background
+  theme(legend.position = "right", 
+        legend.title = element_text(size = 16),  # Increase legend title size
+        legend.text = element_text(size = 14))  # Increase legend text size
+
+# Save the chart
+ggsave("other/charts/moderate_comfort_upgrade_distribution.jpg")
+
+
+
+#### Chart 7 ####
+# Upgraded of High Comfort
+# Load the data
+lane_type_data <- read_csv("data/analysis_data/lane_type_data.csv")
+
+# Filter data for 'High Comfort' lanes and categorize as 'Upgraded' or 'Not Upgraded'
+high_comfort_data <- lane_type_data %>%
+  filter(Comfort_Level == "High Comfort") %>%
+  mutate(
+    Upgrade_Status = ifelse(is.na(UPGRADED), "Not Upgraded", "Upgraded")
+  ) %>%
+  group_by(Upgrade_Status) %>%
+  summarise(count = n())  # Count the occurrences of each category
+
+# Calculate percentages
+high_comfort_data <- high_comfort_data %>%
+  mutate(percentage = round((count / sum(count)) * 100, 2))  # Add percentage column
+
+# Define colors for 'Upgraded' and 'Not Upgraded' categories
+upgrade_colors_high <- c(
+  "Upgraded" = "#8A7967",  # Gray-brown for upgraded
+  "Not Upgraded" = "#B39B8E"  # Muted pinkish tone for not upgraded
+)
+
+# Generate the pie chart for High Comfort lanes
+ggplot(high_comfort_data, aes(x = "", y = percentage, fill = Upgrade_Status)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +  # Add black border lines around pie sections
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = paste0(percentage, "%")), 
+            position = position_stack(vjust = 0.5), 
+            size = 6,   # Increase text size for percentage labels
+            fontface = "bold") +  # Make percentage text bold
+  scale_fill_manual(values = upgrade_colors_high) +  # Apply colors for Upgraded vs Not Upgraded
+  labs(title = "Distribution of High Comfort Lanes: Upgraded vs Not Upgraded", fill = "Upgrade Status") +
+  theme_void() +  # Remove axis, grid lines, and background
+  theme(legend.position = "right", 
+        legend.title = element_text(size = 16),  # Increase legend title size
+        legend.text = element_text(size = 14))  # Increase legend text size
+
+# Save the chart
+ggsave("other/charts/high_comfort_upgrade_distribution.jpg")
+
+ChatGPT said:
+ChatGPT
+Here is the updated 'Preamble' section based on your request:
+
+r
+Copy code
+#### Preamble ####
+# Purpose: Models and visualizes Toronto's cycling infrastructure data, including maps and charts on bikeway installations, upgrades, and comfort levels.
+# Author: Ziheng Zhong
+# Date: 23 September 2024
+# Contact: ziheng.zhong@mail.utoronto.ca
+# License: MIT
+# Pre-requisites: NA
+# Any other information needed: NA
+Let me know if you need any more changes!
