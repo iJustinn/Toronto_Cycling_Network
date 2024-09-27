@@ -50,7 +50,7 @@ To address this, the study evaluates the installation and upgrade trends of bike
 
 The importance of this study lies in its potential to inform urban planners and policymakers about the current shortcomings of Toronto’s cycling infrastructure. By emphasizing the need for targeted investments, particularly in underserved regions, the study contributes to ongoing efforts to make cycling a more viable and equitable transportation option across the city.
 
-The structure of this paper is organized as follows: @sec-data presents the data sources and methodologies, followed by an overview of the results in @sec-res. The findings are then discussed in @sec-dis, and additional detailed information is provided in the appendix at @sec-app.
+The structure of this paper is organized as follows: @sec-data presents the data sources, methodologies, and the visualization of the results. The findings are then discussed in @sec-dis, and additional detailed information is provided in the appendix at @sec-app.
 
 # Data {#sec-data}
 
@@ -279,9 +279,9 @@ head(final_lane_data) %>%
 
 Finally, the fourth cleaning process involved classifying cycling lanes based on the type of infrastructure. Data from the 'INFRA_HIGHORDER' and 'INFRA_LOWORDER' columns was cleaned, and missing values were removed. By using the Bikeway Type data, the lanes were classified into three comfort levels: High Comfort, Moderate Comfort, and Low Comfort, detail of this classification can be found in @sec-app-comfort. The classification, along with year data for installation and upgrades, was saved for analysis on the types of cycling lanes and their comfort levels. @tbl-clean-comfort shows how it looks like.
 
-# Results {#sec-res}
+## Charts
 
-## Data Trend
+### Data Trend
 
 ```{r}
 #| label: fig-installed
@@ -365,7 +365,7 @@ ggplot(upgraded_data, aes(x = UPGRADED, y = num_lanes)) +
 
 In @fig-upgraded-2, the overall trend is slightly upward, as indicated by the red trend line. Despite the notable peaks and drops, the trend line suggests that, on average, the number of bikeway upgrades has increased over the years. The spike in 2015 significantly affects the trend, but even excluding that, the gradual rise suggests that more consistent efforts have been made to maintain and improve Toronto’s cycling network. This trend aligns with broader urban planning strategies focused on making cities more accessible and environmentally friendly by supporting active transportation. The dips in recent years, particularly after 2020, might be influenced by resource reallocation or external factors, such as the global pandemic, which could have delayed some plans.
 
-## Distributions
+### Distributions
 
 ```{r}
 #| label: fig-comfort-one
@@ -544,7 +544,7 @@ ggplot(high_comfort_data, aes(x = "", y = percentage, fill = Upgrade_Status)) +
 
 @fig-comfort-one-2, @fig-comfort-two-1, and @fig-comfort-two-2 offer a deeper look into the upgrade status for each comfort level. For Low Comfort lanes, only 22.26% have been upgraded, while 77.74% remain in their original state. Similarly, for Moderate Comfort bikeways, 23.38% have been upgraded, leaving 76.62% untouched. Interestingly, High Comfort lanes have the lowest proportion of upgrades, with only 18.76% improved. This result shows not much cycling lanes achieved high comfort level by upgrading, most of them are initially designed and built to be high comfort lanes. These trends highlight a potential gap in Toronto's focus on maintaining and upgrading its most comfortable and accessible cycling lanes, suggesting a need for more targeted investments in high-comfort bikeways to encourage cycling in the city.
 
-## Maps
+### Maps
 
 ```{r}
 #| label: fig-map
