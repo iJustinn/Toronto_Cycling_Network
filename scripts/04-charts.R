@@ -4,8 +4,7 @@
 # Date: 23 September 2024
 # Contact: ziheng.zhong@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: NA
-# Any other information needed: NA
+
 
 
 #### Workspace setup ####

@@ -1,4 +1,4 @@
-# Toronto_Cycling_Network
+# Toronto Cycling Network
 
 This study examines the evolution of Toronto’s cycling infrastructure, analyzing the installation dates, upgrades, and comfort levels of bike lanes from 2001 to 2024. By investigating trends in infrastructure expansion, the research places particular emphasis on the varying comfort levels of different lane types, providing insights into how well the network accommodates cyclists. Additionally, the spatial distribution of bike lanes is assessed, uncovering disparities in access between downtown and suburban areas. The findings underscore the importance of continued investment in both the quality and expansion of cycling infrastructure to support sustainable transportation in Toronto. 
 
@@ -8,7 +8,7 @@ This paper tlized data from [Open Data Toronto](https://open.toronto.ca/). This 
 
 ## File Structure
 
-The files for this research are organized in the following ways:
+The files for this research are organized in this repository as follows:
 
 -   `data/raw_data`: the raw data used for analysis
 
