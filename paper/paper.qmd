@@ -54,7 +54,7 @@ The structure of this paper is organized as follows: @sec-data presents the data
 
 # Data {#sec-data}
 
-This project is motivated and guided by Rohan Alexander [@citeRohan] and his book [@citeTbook]. Data used in this paper was downloaded, cleaned and analyzed with the programming language R [@citeR]. Also with support of additional packages in R: `sf` [@citeSf], `readr` [@citeReadr], `ggplot2` [@citeGgplot2], `osmdata` [@citeOsmdata], `tidyverse` [@citeTidyverse], `jsonlite` [@citeJsonlite], `dplyr` [@citeDplyr], `here` [@citeHere], `knitr` [@citeKnitr], `kableExtra` [@citeKableExtra].
+This project is motivated and guided by Rohan Alexander and his book [@citeTbook]. Data used in this paper was downloaded, cleaned and analyzed with the programming language R [@citeR]. Also with support of additional packages in R: `sf` [@citeSf], `readr` [@citeReadr], `ggplot2` [@citeGgplot2], `osmdata` [@citeOsmdata], `tidyverse` [@citeTidyverse], `jsonlite` [@citeJsonlite], `dplyr` [@citeDplyr], `here` [@citeHere], `knitr` [@citeKnitr], `kableExtra` [@citeKableExtra].
 
 ## Source
 The dataset analyzed in this study, the Cycling Network dataset [@citeCyclingNetwork], was retrieved from Open Data Toronto [@citeODT]. This dataset is publicly available and is continually updated to reflect Toronto’s ongoing efforts to develop and maintain its cycling infrastructure. It contains geospatial and temporal information about various cycling-related features, including the types of bikeways, installation years, etc. Such a detailed history of Toronto's cycling network development shows a good fit for this study.
